@@ -15,7 +15,7 @@ class RoadRatingListCreate(generics.ListCreateAPIView):
 	serializer_class = RoadRatingSerializer
 
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
 # @csrf_exempt
@@ -35,7 +35,7 @@ TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 #     return JsonResponse({"error": "invalid"}, status=400)
 
 
-def send_message(chat_id, text):
+def send_message(chat_id, text, TELEGRAM_URL):
     url = f"{TELEGRAM_URL}/sendMessage"
     payload = {
         "chat_id": chat_id,
@@ -58,7 +58,7 @@ def webhook(request):
         logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
 
         # Example reply (optional)
-        send_message(chat_id, f"You said: {text}")
+        send_message(chat_id, f"You said: {text}", TELEGRAM_URL)
 
         return JsonResponse({"ok": True})
     except Exception as e:
