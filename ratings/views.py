@@ -7,6 +7,7 @@ import requests, json
 import os
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from django.views.decorators.http import require_POST
 logger = logging.getLogger(__name__)
 
 class RoadRatingListCreate(generics.ListCreateAPIView):
@@ -34,27 +35,22 @@ TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 #     return JsonResponse({"error": "invalid"}, status=400)
 
 @csrf_exempt
+@require_POST
 def webhook(request):
-    if request.method == "POST":
-        try:
-            body_unicode = request.body.decode("utf-8")
-            if not body_unicode:  # 🛡 prevent empty body crash
-                return JsonResponse({"error": "empty body"}, status=400)
+    try:
+        body = request.body.decode("utf-8")
+        logger.info("📩 Raw Telegram update: %s", body)
 
-            data = json.loads(body_unicode)
-            print("Incoming update:", data)  # log raw payload
+        data = json.loads(body)
+        chat_id = data.get("message", {}).get("chat", {}).get("id")
+        text = data.get("message", {}).get("text")
 
-            # Handle only messages safely
-            if "message" in data:
-                chat_id = data["message"]["chat"]["id"]
-                text = data["message"].get("text", "")
+        logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
 
-                reply = {"chat_id": chat_id, "text": f"You said: {text}"}
-                r = requests.post(TELEGRAM_URL, json=reply)
-                print("Telegram API reply:", r.status_code, r.text)
+        # Example reply (optional)
+        # send_message(chat_id, f"You said: {text}")
 
-            return JsonResponse({"status": "ok"})
-        except json.JSONDecodeError as e:
-            print("JSON parse error:", e, " Raw body:", request.body)
-            return JsonResponse({"error": "invalid JSON"}, status=400)
-    return JsonResponse({"error": "invalid method"}, status=405)
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        logger.error("❌ Error in webhook: %s", e, exc_info=True)
+        return JsonResponse({"ok": False}, status=500)
