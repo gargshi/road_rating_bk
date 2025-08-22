@@ -6,6 +6,8 @@ from django.http import JsonResponse
 import requests, json
 import os
 from django.views.decorators.csrf import csrf_exempt
+import logging
+logger = logging.getLogger(__name__)
 
 class RoadRatingListCreate(generics.ListCreateAPIView):
 	queryset = RoadRating.objects.all().order_by("-created_at")
@@ -19,13 +21,14 @@ TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 def webhook(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        logger.info(f"Incoming update: {data}")
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
         print(f"Received message: {text} from chat_id: {chat_id}")
 
         # Reply back
         reply = {"chat_id": chat_id, "text": f"You said: {text}"}
-        requests.post(TELEGRAM_URL, json=reply)
-
+        r=requests.post(TELEGRAM_URL, json=reply)
+        logger.info(f"Telegram reply status: {r.status_code}, {r.text}")
         return JsonResponse({"status": "ok"})
     return JsonResponse({"error": "invalid"}, status=400)
