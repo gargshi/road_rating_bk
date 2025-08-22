@@ -15,7 +15,7 @@ class RoadRatingListCreate(generics.ListCreateAPIView):
 	serializer_class = RoadRatingSerializer
 
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
 # @csrf_exempt
