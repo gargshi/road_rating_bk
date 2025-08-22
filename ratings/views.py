@@ -21,6 +21,7 @@ def webhook(request):
         data = json.loads(request.body)
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
+        print(f"Received message: {text} from chat_id: {chat_id}")
 
         # Reply back
         reply = {"chat_id": chat_id, "text": f"You said: {text}"}
