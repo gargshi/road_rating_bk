@@ -34,6 +34,16 @@ TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 #         return JsonResponse({"status": "ok"})
 #     return JsonResponse({"error": "invalid"}, status=400)
 
+
+def send_message(chat_id, text):
+    url = f"{TELEGRAM_URL}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text
+    }
+    response = requests.post(url, json=payload)
+    return response.json()
+
 @csrf_exempt
 @require_POST
 def webhook(request):
@@ -48,7 +58,7 @@ def webhook(request):
         logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
 
         # Example reply (optional)
-        # send_message(chat_id, f"You said: {text}")
+        send_message(chat_id, f"You said: {text}")
 
         return JsonResponse({"ok": True})
     except Exception as e:
