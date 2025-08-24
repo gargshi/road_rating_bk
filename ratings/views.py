@@ -49,13 +49,13 @@ def send_message(chat_id, text, TELEGRAM_URL):
 def webhook(request):
     try:
         body = request.body.decode("utf-8")
-        logger.info("📩 Raw Telegram update: %s", body)
+        # logger.info("📩 Raw Telegram update: %s", body)
 
         data = json.loads(body)
         chat_id = data.get("message", {}).get("chat", {}).get("id")
         text = data.get("message", {}).get("text")
 
-        logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
+        # logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
 
         # Example reply (optional)
         send_message(chat_id, f"You said: {text}", TELEGRAM_URL)
