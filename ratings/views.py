@@ -44,6 +44,10 @@ def send_message(chat_id, text, TELEGRAM_URL):
     response = requests.post(url, json=payload)
     return response.json()
 
+def add_record(url, data):
+    response = requests.post(url, json=data)
+    return response.json()
+
 @csrf_exempt
 @require_POST
 def webhook(request):
@@ -58,6 +62,11 @@ def webhook(request):
         # logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
 
         # Example reply (optional)
+        add_record("https://road-rating-bk.onrender.com:8000/api/ratings", {
+            "road_name": "From Telegram",
+            "rating": 5,
+            "comment": text
+        })
         send_message(chat_id, f"You said: {text}", TELEGRAM_URL)
 
         return JsonResponse({"ok": True})
