@@ -62,7 +62,7 @@ def webhook(request):
         # logger.info("✅ Chat ID: %s, Text: %s", chat_id, text)
 
         # Example reply (optional)
-        add_record("https://127.0.0.1:8000/api/ratings", {
+        add_record("http://127.0.0.1:8000/api/ratings", {
             "road_name": "From Telegram",
             "rating": 5,
             "comment": text
