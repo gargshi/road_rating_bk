@@ -14,9 +14,9 @@ class UserConversation(models.Model):
     step = models.CharField(max_length=20, default="ask_road")
 
     # Temporary storage during conversation
-    road = models.TextField(null=True, blank=True)
+    road_name = models.TextField(null=True, blank=True)
     rating = models.TextField(null=True, blank=True)
-    comments = models.TextField(null=True, blank=True)
+    comment = models.TextField(null=True, blank=True)
 
     # Link to final feedback (once submitted)
     fk_road_id = models.ForeignKey(
