@@ -64,7 +64,7 @@ def webhook(request):
             conv, _ = UserConversation.objects.get_or_create(chat_id=chat_id)
 
             if conv.step == "ask_road":
-                conv.road = text
+                conv.road_name = text
                 conv.step = "ask_rating"
                 conv.save()
                 send_message(chat_id, "Thanks! Now give me a rating (1-5):")
@@ -76,20 +76,20 @@ def webhook(request):
                 send_message(chat_id, "Got it! Please add any comments:")
 
             elif conv.step == "ask_comments":
-                conv.comments = text
+                conv.comment = text
 
                 # Save feedback directly into DB
                 feedback = RoadRating.objects.create(
-                    road_name=conv.road,
+                    road_name=conv.road_name,
                     rating=int(conv.rating),
-                    comments=conv.comments
+                    comment=conv.comment
                 )
 
                 conv.fk_road_id = feedback
                 conv.step = "ask_road"  # reset for next round
-                conv.road = None
+                conv.road_name = None
                 conv.rating = None
-                conv.comments = None
+                conv.comment = None
                 conv.save()
 
                 send_message(chat_id, "✅ Feedback submitted. Thank you! Want to add another? Please enter the road name:")
