@@ -8,3 +8,23 @@ class RoadRating(models.Model):
 
     def __str__(self):
         return f"{self.road_name} - {self.rating}⭐"
+
+class UserConversation(models.Model):
+    chat_id = models.CharField(max_length=50, unique=True)
+    step = models.CharField(max_length=20, default="ask_road")
+
+    # Temporary storage during conversation
+    road = models.TextField(null=True, blank=True)
+    rating = models.TextField(null=True, blank=True)
+    comments = models.TextField(null=True, blank=True)
+
+    # Link to final feedback (once submitted)
+    fk_road_id = models.ForeignKey(
+        RoadRating, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="fk_road_id"
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.chat_id} - {self.step}"
