@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from .models import RoadRating, UserConversation
-from .serializers import RoadRatingSerializer
+from .serializers import RoadRatingSerializer, UserConversationSerializer
 from django.http import JsonResponse
 import requests, json
 import os
@@ -14,25 +14,12 @@ class RoadRatingListCreate(generics.ListCreateAPIView):
 	queryset = RoadRating.objects.all().order_by("-created_at")
 	serializer_class = RoadRatingSerializer
 
+class UserConversationListCreate(generics.ListCreateAPIView):
+    queryset = UserConversation.objects.all().order_by("-updated_at")
+    serializer_class = UserConversationSerializer
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-
-# @csrf_exempt
-# def webhook(request):
-#     if request.method == "POST":
-#         data = json.loads(request.body)
-#         logger.info(f"Incoming update: {data}")
-#         chat_id = data["message"]["chat"]["id"]
-#         text = data["message"].get("text", "")
-#         print(f"Received message: {text} from chat_id: {chat_id}")
-
-#         # Reply back
-#         reply = {"chat_id": chat_id, "text": f"You said: {text}"}
-#         r=requests.post(TELEGRAM_URL, json=reply)
-#         logger.info(f"Telegram reply status: {r.status_code}, {r.text}")
-#         return JsonResponse({"status": "ok"})
-#     return JsonResponse({"error": "invalid"}, status=400)
 
 
 def send_message(chat_id, text):
@@ -60,8 +47,25 @@ def webhook(request):
         if "message" in data:
             chat_id = str(data["message"]["chat"]["id"])
             text = data["message"].get("text", "")
+            if text == "/cancel":
+                # send_message(chat_id, "Cancelled. To start over, type /start")
+                latest_conv = UserConversation.objects.filter(chat_id=chat_id).order_by("-updated_at").first() # reset conversation
+                if latest_conv:
+                    if latest_conv.step != "complete":
+                        latest_conv.delete()
+                    send_message(chat_id, "Cancelled. To start over, type /start")
+                return JsonResponse({"ok": True})
+            
+            if text == "/start":
+                send_message(chat_id, "Hi! Welcome to the Road Rating Bot.")
 
             conv, _ = UserConversation.objects.get_or_create(chat_id=chat_id)
+
+            if conv.step == "complete":
+                send_message(chat_id, "Thanks! To start over, type /start")                
+                return JsonResponse({"ok": True})
+            
+            conv.step = conv.step if conv.step != "complete" else "ask_road" # reset if previously complete
 
             if conv.step == "ask_road":
                 conv.road_name = text
@@ -71,6 +75,10 @@ def webhook(request):
 
             elif conv.step == "ask_rating":
                 conv.rating = text
+                #validation
+                if text not in ["1", "2", "3", "4", "5"]:
+                    send_message(chat_id, "Please provide a valid rating between 1 and 5.")
+                    return JsonResponse({"ok": True})
                 conv.step = "ask_comments"
                 conv.save()
                 send_message(chat_id, "Got it! Please add any comments:")
@@ -86,13 +94,13 @@ def webhook(request):
                 )
 
                 conv.fk_road_id = feedback
-                conv.step = "ask_road"  # reset for next round
+                conv.step = "complete"  # reset for next round
                 conv.road_name = None
                 conv.rating = None
                 conv.comment = None
                 conv.save()
 
-                send_message(chat_id, "✅ Feedback submitted. Thank you! Want to add another? Please enter the road name:")
+                send_message(chat_id, "✅ Feedback submitted. Thank you! Want to add another? Please type /start")
 
             else:
                 conv.step = "ask_road"
