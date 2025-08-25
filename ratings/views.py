@@ -35,7 +35,7 @@ TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 #     return JsonResponse({"error": "invalid"}, status=400)
 
 
-def send_message(chat_id, text, TELEGRAM_URL):
+def send_message(chat_id, text):
     url = f"{TELEGRAM_URL}"
     payload = {
         "chat_id": chat_id,
