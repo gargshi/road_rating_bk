@@ -25,8 +25,15 @@ SECRET_KEY = 'django-insecure-o*-qyh)!*vsjf8cc855(9__gjgz5ec@lz&+i!)i+infh9por-y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = [
+	"https://road-rating-bk.onrender.com",
+	"localhost",
+	"127.0.0.1",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://road-rating-bk.onrender.com",
+]
 
 # Application definition
 
