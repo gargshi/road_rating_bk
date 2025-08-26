@@ -216,7 +216,7 @@ def webhook(request):
             return JsonResponse({"ok": True})
 
         if text == "/past":
-            past_ratings = RoadRating.objects.filter(userconversation__chat_id=chat_id).order_by("-created_at")
+            past_ratings = RoadRating.objects.filter(fk_road_id__chat_id=chat_id).order_by("-created_at")
             if past_ratings.exists():
                 send_message(chat_id, "📝 Your past ratings:")
                 for rating in past_ratings:
