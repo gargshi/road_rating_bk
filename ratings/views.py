@@ -47,14 +47,37 @@ def webhook(request):
         if "message" in data:
             chat_id = str(data["message"]["chat"]["id"])
             text = data["message"].get("text", "")
-            conv, _ = UserConversation.objects.get_or_create(chat_id=chat_id)
+            # conv, _ = UserConversation.objects.get_or_create(chat_id=chat_id) #edit in place in case of new rating
+            conv = UserConversation.objects.create(chat_id=chat_id) #get conversations
+            
             if text == "/start":
                 send_message(chat_id, "Hi! Welcome to the Road Rating Bot.")
+                send_message(chat_id, '''To rate a road, type /start \n
+                To cancel the current operation, type /cancel \n 
+                To see your past ratings, type /past \n\n
+                To see this message again, type /help''')
+                
                 conv.step = "start"
                 conv.road_name = None
                 conv.rating = None
                 conv.comment = None
-                conv.save()                
+                conv.save()
+
+            if text == "/help":
+                send_message(chat_id, '''To rate a road, type /start \n
+                To cancel the current operation, type /cancel \n 
+                To see your past ratings, type /past \n\n
+                To see this message again, type /help''')
+                # return JsonResponse({"ok": True})
+            
+            if text == "/past":
+                send_message(chat_id, "This feature is in progress. Stay tuned!")
+                # send_message(chat_id, "Here are your past ratings:")
+                #  Fetch and display past ratings from RoadRating model
+                # past_ratings = RoadRating.objects.filter(user_id=chat_id).order_by("-created_at")
+                # for rating in past_ratings:
+                #     send_message(chat_id, f"Road: {rating.road_name}\nRating: {rating.rating}\nComment: {rating.comment}\nDate: {rating.created_at}\n\n")
+
 
             if text == "/cancel":
                 # send_message(chat_id, "Cancelled. To start over, type /start")
@@ -76,6 +99,23 @@ def webhook(request):
                 send_message(chat_id, "Enter the name of the road you want to rate?")
                 conv.step = "ask_road"
                 conv.save()
+            
+            # elif conv.step == "check_incomplete_latest": 
+            #     latest_conv = UserConversation.objects.filter(chat_id=chat_id, step__in=["ask_road", "ask_rating", "ask_comments"]).order_by("-updated_at").first()
+            #     if latest_conv and latest_conv.step != "complete":
+            #         conv = latest_conv
+            #         send_message(chat_id, f"You have an incomplete rating for road: {conv.road_name if conv.road_name else 'N/A'}.")
+            #         send_message(chat_id, "Please continue where you left off.")
+            #         if conv.step == "ask_road":
+            #             send_message(chat_id, "Please enter the road name:")
+            #         elif conv.step == "ask_rating":
+            #             send_message(chat_id, "Please provide a rating (1-5):")
+            #         elif conv.step == "ask_comments":
+            #             send_message(chat_id, "Please add any comments:")
+            #         return JsonResponse({"ok": True})
+            #     else:
+            #         conv.step = "start"
+            #         conv.save()                   
             
             elif conv.step == "ask_road": 
                 conv.road_name = text
@@ -104,19 +144,16 @@ def webhook(request):
                 )
 
                 conv.fk_road_id = feedback
-                conv.step = "complete"  # reset for next round
-                conv.road_name = None
-                conv.rating = None
-                conv.comment = None
+                conv.step = "complete"  # reset for next round                
                 conv.save()
 
                 send_message(chat_id, "✅ Feedback submitted. Thank you!")
                 send_message(chat_id, "Want to add another? Please type /start")
 
-            else:
-                conv.step = "ask_road"
-                conv.save()
-                send_message(chat_id, "Hi! Please enter the road name:")
+            # else:
+            #     conv.step = "ask_road"
+            #     conv.save()
+            #     send_message(chat_id, "Hi! Please enter the road name:")
 
             return JsonResponse({"ok": True})
 
