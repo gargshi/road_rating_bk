@@ -58,6 +58,9 @@ def webhook(request):
             
             if text == "/start":
                 send_message(chat_id, "Hi! Welcome to the Road Rating Bot.")
+                send_message(chat_id, "Enter the name of the road you want to rate?")
+
+                # return JsonResponse({"ok": True})
 
             conv, _ = UserConversation.objects.get_or_create(chat_id=chat_id)
 
@@ -65,9 +68,15 @@ def webhook(request):
                 send_message(chat_id, "Thanks! To start over, type /start")                
                 return JsonResponse({"ok": True})
             
-            conv.step = conv.step if conv.step != "complete" else "ask_road" # reset if previously complete
+            conv.step = conv.step if conv.step != "complete" else "start" # reset if previously complete
 
-            if conv.step == "ask_road":
+            if conv.step == "start":
+                # send_message(chat_id, "Enter the name of the road you want to rate?")                
+                conv.step = "ask_road"
+                conv.save()
+
+            
+            if conv.step == "ask_road": 
                 conv.road_name = text
                 conv.step = "ask_rating"
                 conv.save()
