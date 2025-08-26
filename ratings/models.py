@@ -10,7 +10,7 @@ class RoadRating(models.Model):
         return f"{self.road_name} - {self.rating}⭐"
 
 class UserConversation(models.Model):
-    chat_id = models.CharField(max_length=50, unique=True)
+    chat_id = models.CharField(max_length=50)
     step = models.CharField(max_length=20, default="start")
 
     # Temporary storage during conversation
