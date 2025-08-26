@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
 	"https://road-rating-bk.onrender.com",
+	"road-rating-bk.onrender.com",
 	"localhost",
 	"127.0.0.1",
 ]
