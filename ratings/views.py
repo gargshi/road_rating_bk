@@ -49,6 +49,7 @@ def webhook(request):
         chat_id = str(data["message"]["chat"]["id"])
         text = data["message"].get("text", "").strip()
         location = data["message"].get("location", None)
+        logger.info(f"Received message from {chat_id}: {text}, location: {location}")
 
         # Get latest conversation if any
         latest_conv = UserConversation.objects.filter(chat_id=chat_id).order_by("-updated_at").first()
