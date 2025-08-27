@@ -52,6 +52,7 @@ def webhook(request):
         # Get latest conversation if any
         latest_conv = UserConversation.objects.filter(chat_id=chat_id).order_by("-updated_at").first()
         conv = latest_conv
+        gps_coordinates = None
 
         # ---------------- Commands ----------------
         if text == "/start":
@@ -116,18 +117,38 @@ def webhook(request):
                 send_message(chat_id, "⚠️ Please provide a valid rating between 1 and 5.")
                 return JsonResponse({"ok": True})
             conv.rating = text
+            conv.step = "ask_gps"
+            conv.save()
+            send_message(chat_id, "Thanks! Now please provide the GPS coordinates of the road:")
+            
+
+        elif conv.step == "ask_gps":
+            if not text:
+                send_message(chat_id, "⚠️ Please provide valid GPS coordinates.")
+                return JsonResponse({"ok": True})
+            if "/skip" in text.lower():
+                gps_coordinates = "Not provided"
+            else:
+                gps_coordinates = text
             conv.step = "ask_comments"
             conv.save()
             send_message(chat_id, "Got it! Please add any comments:")
 
         elif conv.step == "ask_comments":
             conv.comment = text
+            conv.step = "ask_gps"
+            conv.save()
+            
+        
+        elif conv.step == "ask_gps":
+            conv.gps_coordinates = text
 
             # Save feedback directly into DB
             feedback = RoadRating.objects.create(
                 road_name=conv.road_name,
                 rating=int(conv.rating),
-                comment=conv.comment
+                comment=conv.comment,
+                gps_coordinates=gps_coordinates  # Placeholder, as GPS not collected via Telegram
             )
 
             conv.fk_road_id = feedback

@@ -4,6 +4,7 @@ class RoadRating(models.Model):
     road_name = models.CharField(max_length=255)
     rating = models.IntegerField()  # 1–5 stars
     comment = models.TextField(blank=True, null=True)
+    gps_coordinates = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
