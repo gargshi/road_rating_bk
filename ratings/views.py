@@ -80,11 +80,19 @@ def webhook(request):
             if past_ratings.exists():
                 send_message(chat_id, "📝 Your past ratings:")
                 for rating in past_ratings:
+                    coords_text = ""
+                    if rating.gps_coordinates and "," in rating.gps_coordinates:
+                        lat, lon = rating.gps_coordinates.split(",")
+                        maps_url = f"https://www.google.com/maps?q={lat.strip()},{lon.strip()}"
+                        coords_text = f"[📍 View on Map]({maps_url})"
+                    else:
+                        coords_text = "—"
                     send_message(
                         chat_id,
                         f"Road: {rating.road_name}\n"
                         f"Rating: {rating.rating}\n"
                         f"Comment: {rating.comment or '—'}\n"
+                        f"Coordinates: {coords_text or '—'}\n"
                         f"Date: {rating.created_at.strftime('%Y-%m-%d %H:%M')}\n"
                     )
             else:
