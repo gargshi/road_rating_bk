@@ -147,6 +147,7 @@ def webhook(request):
             else:
                 send_message(chat_id, "⚠️ Please provide GPS coordinates (or /skip).")
                 return JsonResponse({"ok": True})
+            
             conv.step = "ask_comments"
             conv.save()
             send_message(chat_id, "Got it! Please add any comments:")
@@ -154,6 +155,8 @@ def webhook(request):
         elif conv.step == "ask_comments":
             conv.comment = text                   
             # Save feedback directly into DB
+            logger.info("💾 Saving feedback to DB"
+                        f" Road: {conv.road_name}, Rating: {conv.rating}, Comment: {conv.comment}, GPS: {gps_coordinates}")
             feedback = RoadRating.objects.create(
                 road_name=conv.road_name,
                 rating=int(conv.rating),
