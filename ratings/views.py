@@ -48,6 +48,7 @@ def webhook(request):
 
         chat_id = str(data["message"]["chat"]["id"])
         text = data["message"].get("text", "").strip()
+        location = data["message"].get("location", None)
 
         # Get latest conversation if any
         latest_conv = UserConversation.objects.filter(chat_id=chat_id).order_by("-updated_at").first()
@@ -123,16 +124,31 @@ def webhook(request):
             
 
         elif conv.step == "ask_gps":
-            if not text:
-                send_message(chat_id, "⚠️ Please provide valid GPS coordinates."+conv.step)
-                return JsonResponse({"ok": True})
-            if "/skip" in text.lower():
-                gps_coordinates = "Not provided"
+            # if not text:
+            #     send_message(chat_id, "⚠️ Please provide valid GPS coordinates."+conv.step)
+            #     return JsonResponse({"ok": True})
+            # if "/skip" in text.lower():
+            #     gps_coordinates = "Not provided"
+            # else:
+            #     gps_coordinates = text
+            # conv.step = "ask_comments"
+            # conv.save()
+            # send_message(chat_id, "Got coordinates! "+gps_coordinates)
+            # send_message(chat_id, "Got it! Please add any comments:")
+            if location:  # user sent attached location
+                lat = location["latitude"]
+                lon = location["longitude"]
+                gps_coordinates = f"{lat}, {lon}"
+            elif text:
+                if "/skip" in text.lower():
+                    gps_coordinates = "Not provided"
+                else:
+                    gps_coordinates = text
             else:
-                gps_coordinates = text
+                send_message(chat_id, "⚠️ Please provide GPS coordinates (or /skip).")
+                return JsonResponse({"ok": True})
             conv.step = "ask_comments"
             conv.save()
-            send_message(chat_id, "Got coordinates! "+gps_coordinates)
             send_message(chat_id, "Got it! Please add any comments:")
 
         elif conv.step == "ask_comments":
