@@ -124,7 +124,7 @@ def webhook(request):
 
         elif conv.step == "ask_gps":
             if not text:
-                send_message(chat_id, "⚠️ Please provide valid GPS coordinates.")
+                send_message(chat_id, "⚠️ Please provide valid GPS coordinates."+conv.step)
                 return JsonResponse({"ok": True})
             if "/skip" in text.lower():
                 gps_coordinates = "Not provided"
@@ -132,6 +132,7 @@ def webhook(request):
                 gps_coordinates = text
             conv.step = "ask_comments"
             conv.save()
+            send_message(chat_id, "Got coordinates! "+gps_coordinates)
             send_message(chat_id, "Got it! Please add any comments:")
 
         elif conv.step == "ask_comments":
