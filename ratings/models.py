@@ -18,6 +18,7 @@ class UserConversation(models.Model):
     road_name = models.TextField(null=True, blank=True)
     rating = models.TextField(null=True, blank=True)
     comment = models.TextField(null=True, blank=True)
+    gps_coordinates = models.CharField(max_length=100, blank=True, null=True)
 
     # Link to final feedback (once submitted)
     fk_road_id = models.ForeignKey(

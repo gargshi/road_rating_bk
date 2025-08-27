@@ -54,7 +54,6 @@ def webhook(request):
         # Get latest conversation if any
         latest_conv = UserConversation.objects.filter(chat_id=chat_id).order_by("-updated_at").first()
         conv = latest_conv
-        gps_coordinates = None
 
         # ---------------- Commands ----------------
         if text == "/start":
@@ -125,26 +124,16 @@ def webhook(request):
             
 
         elif conv.step == "ask_gps":
-            # if not text:
-            #     send_message(chat_id, "⚠️ Please provide valid GPS coordinates."+conv.step)
-            #     return JsonResponse({"ok": True})
-            # if "/skip" in text.lower():
-            #     gps_coordinates = "Not provided"
-            # else:
-            #     gps_coordinates = text
-            # conv.step = "ask_comments"
-            # conv.save()
-            # send_message(chat_id, "Got coordinates! "+gps_coordinates)
-            # send_message(chat_id, "Got it! Please add any comments:")
             if location:  # user sent attached location
+                logger.info(f"Received location: {location}")
                 lat = location["latitude"]
                 lon = location["longitude"]
-                gps_coordinates = f"{lat}, {lon}"
+                conv.gps_coordinates = f"{lat}, {lon}"
             elif text:
                 if "/skip" in text.lower():
-                    gps_coordinates = "Not provided"
+                    conv.gps_coordinates = "Not provided"
                 else:
-                    gps_coordinates = text
+                    conv.gps_coordinates = text
             else:
                 send_message(chat_id, "⚠️ Please provide GPS coordinates (or /skip).")
                 return JsonResponse({"ok": True})
@@ -157,12 +146,12 @@ def webhook(request):
             conv.comment = text                   
             # Save feedback directly into DB
             logger.info("💾 Saving feedback to DB"
-                        f" Road: {conv.road_name}, Rating: {conv.rating}, Comment: {conv.comment}, GPS: {gps_coordinates}")
+                        f" Road: {conv.road_name}, Rating: {conv.rating}, Comment: {conv.comment}, GPS: {conv.gps_coordinates}")
             feedback = RoadRating.objects.create(
                 road_name=conv.road_name,
                 rating=int(conv.rating),
                 comment=conv.comment,
-                gps_coordinates=gps_coordinates  # Placeholder, as GPS not collected via Telegram
+                gps_coordinates=conv.gps_coordinates  # Placeholder, as GPS not collected via Telegram
             )
 
             conv.fk_road_id = feedback
