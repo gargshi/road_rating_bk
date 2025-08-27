@@ -59,20 +59,14 @@ def webhook(request):
         if text == "/start":
             conv = UserConversation.objects.create(chat_id=chat_id, step="start")
             send_message(chat_id, "Hi! Welcome to the Road Rating Bot.")
-            send_message(chat_id, '''To rate a road, type /start \n
-            To cancel the current operation, type /cancel \n 
-            To see your past ratings, type /past \n\n
-            To see this message again, type /help''')                
+            send_message(chat_id, "To rate a road, type /start \n To cancel the current operation, type /cancel \n To see your past ratings, type /past \n\nTo see this message again, type /help")                
             send_message(chat_id, "Enter the name of the road you want to rate?")
             conv.step = "ask_road"
             conv.save()
             return JsonResponse({"ok": True})
 
         if text == "/help":
-            send_message(chat_id, '''To rate a road, type /start \n
-            To cancel the current operation, type /cancel \n 
-            To see your past ratings, type /past \n\n
-            To see this message again, type /help''')
+            send_message(chat_id, "To rate a road, type /start \n To cancel the current operation, type /cancel \n To see your past ratings, type /past \n\nTo see this message again, type /help")
             return JsonResponse({"ok": True})
 
         if text == "/past":
@@ -168,6 +162,10 @@ def webhook(request):
 
             send_message(chat_id, "✅ Feedback submitted. Thank you!")
             send_message(chat_id, "Want to add another? Please type /start")
+        
+        else:
+            send_message(chat_id, "⚠️ Seems like a wrong command.\n ")
+            send_message(chat_id, "To rate a road, type /start \n To cancel the current operation, type /cancel \n To see your past ratings, type /past \n\nTo see this message again, type /help")                
 
         return JsonResponse({"ok": True})
 
