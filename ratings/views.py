@@ -190,7 +190,7 @@ def webhook(request):
 user_sessions = {}
 @csrf_exempt
 def webhook_widgets(request):
-    data = request.json()
+    data = json.loads(request.body.decode("utf-8")) #request.json()
     message = data.get("message", {})
     chat_id = message.get("chat", {}).get("id")
 
