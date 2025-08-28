@@ -31,6 +31,20 @@ def send_message(chat_id, text):
     response = requests.post(url, json=payload)
     return response.json()
 
+def send_message_markdown(chat_id, text, reply_markup=None):
+    url = f"{TELEGRAM_URL}"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "Markdown"
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    requests.post(url, json=payload)
+    # response = requests.post(url, json=payload)
+    # return response.json()
+
+
 def add_record(url, data):
     response = requests.post(url, json=data)
     return response.json()
@@ -172,3 +186,136 @@ def webhook(request):
     except Exception as e:
         logger.error("❌ Error in webhook: %s", e, exc_info=True)
         return JsonResponse({"ok": False}, status=500)
+
+user_sessions = {}
+@csrf_exempt
+def webhook_widgets(request):
+    data = request.json()
+    message = data.get("message", {})
+    chat_id = message.get("chat", {}).get("id")
+
+    if "text" in message:
+        text = message["text"]
+
+        # Start
+        if text == "/start":
+            keyboard = {
+                "keyboard": [
+                    [{"text": "➕ Rate a Road"}],
+                    [{"text": "📝 View Past Ratings"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
+
+        # Start rating
+        elif text == "➕ Rate a Road":
+            user_sessions[chat_id] = {"step": "road_name"}
+            send_message(chat_id, "📍 Please enter the road name:")
+
+        # Handle road name
+        elif user_sessions.get(chat_id, {}).get("step") == "road_name":
+            user_sessions[chat_id]["road_name"] = text
+            user_sessions[chat_id]["step"] = "rating"
+            keyboard = {
+                "keyboard": [
+                    [{"text": "⭐ 1"}, {"text": "⭐ 2"}],
+                    [{"text": "⭐ 3"}, {"text": "⭐ 4"}, {"text": "⭐ 5"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message(chat_id, "⭐ Please rate the road (1–5):", reply_markup=keyboard)
+
+        # Handle rating
+        elif user_sessions.get(chat_id, {}).get("step") == "rating" and text.startswith("⭐"):
+            rating_value = int(text.split()[1])
+            user_sessions[chat_id]["rating"] = rating_value
+            user_sessions[chat_id]["step"] = "comment"
+            keyboard = {
+                "keyboard": [
+                    [{"text": "📝 Add Comment"}, {"text": "⏭ Skip"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message(chat_id, "Would you like to add a comment?", reply_markup=keyboard)
+
+        # Handle comment step
+        elif user_sessions.get(chat_id, {}).get("step") == "comment":
+            if text == "⏭ Skip":
+                user_sessions[chat_id]["comment"] = None
+            elif text == "📝 Add Comment":
+                send_message(chat_id, "✍ Please type your comment:")
+                user_sessions[chat_id]["step"] = "comment_text"
+                return JsonResponse({"ok": True})
+            else:  # user typed comment
+                user_sessions[chat_id]["comment"] = text
+
+            # Next step → location
+            user_sessions[chat_id]["step"] = "location"
+            keyboard = {
+                "keyboard": [
+                    [{"text": "📍 Share Location", "request_location": True}],
+                    [{"text": "⏭ Skip Location"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message(chat_id, "📍 Please share the location:", reply_markup=keyboard)
+
+        # Handle comment text input
+        elif user_sessions.get(chat_id, {}).get("step") == "comment_text":
+            user_sessions[chat_id]["comment"] = text
+            user_sessions[chat_id]["step"] = "location"
+            keyboard = {
+                "keyboard": [
+                    [{"text": "📍 Share Location", "request_location": True}],
+                    [{"text": "⏭ Skip Location"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message(chat_id, "📍 Please share the location:", reply_markup=keyboard)
+
+        # Skip location
+        elif text == "⏭ Skip Location":
+            save_rating(chat_id)
+            del user_sessions[chat_id]
+
+        # View past ratings
+        elif text == "📝 View Past Ratings":
+            past_ratings = RoadRating.objects.filter(fk_road_id__chat_id=chat_id).order_by("-created_at")
+            if past_ratings.exists():
+                send_message(chat_id, "📝 Your past ratings:")
+                for rating in past_ratings:
+                    maps_link = f"https://www.google.com/maps?q={rating.gps_coordinates}" if rating.gps_coordinates else "—"
+                    send_message(
+                        chat_id,
+                        f"Road: {rating.road_name}\n"
+                        f"Rating: {rating.rating}\n"
+                        f"Comment: {rating.comment or '—'}\n"
+                        f"Coordinates: {maps_link}\n"
+                        f"Date: {rating.created_at.strftime('%Y-%m-%d %H:%M')}\n"
+                    )
+            else:
+                send_message(chat_id, "ℹ️ You haven’t rated any roads yet.")
+
+    # Handle location
+    elif "location" in message:
+        lat = message["location"]["latitude"]
+        lon = message["location"]["longitude"]
+        gps = f"{lat},{lon}"
+        user_sessions[chat_id]["gps_coordinates"] = gps
+        save_rating(chat_id)
+        del user_sessions[chat_id]
+
+    return JsonResponse({"ok": True})
+
+
+def save_rating(chat_id):
+    """Save rating to DB"""
+    session = user_sessions.get(chat_id, {})
+    RoadRating.objects.create(
+        road_name=session.get("road_name"),
+        rating=session.get("rating"),
+        comment=session.get("comment"),
+        gps_coordinates=session.get("gps_coordinates"),        
+    )
+    send_message(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
