@@ -312,10 +312,19 @@ def webhook_widgets(request):
 def save_rating(chat_id):
     """Save rating to DB"""
     session = user_sessions.get(chat_id, {})
-    RoadRating.objects.create(
+    logger.info(f"💾 Saving rating for chat_id {chat_id}: {session}")
+    feedback = RoadRating.objects.create(
         road_name=session.get("road_name"),
         rating=session.get("rating"),
         comment=session.get("comment"),
         gps_coordinates=session.get("gps_coordinates"),        
+    )
+    UserConversation.objects.create(
+        chat_id=chat_id,
+        road_name=session.get("road_name"),
+        rating=session.get("rating"),
+        comment=session.get("comment"),
+        gps_coordinates=session.get("gps_coordinates"),
+        fk_road_id=feedback,
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
