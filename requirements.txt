@@ -3,3 +3,4 @@ djangorestframework
 python-dotenv
 requests
 python-telegram-bot
+gunicorn
