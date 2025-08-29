@@ -198,15 +198,7 @@ def webhook_widgets(request):
         text = message["text"]
 
         # Start
-        if text in ["/start","✅ Yes, I want to rate more roads"]:
-            # keyboard = {
-            #     "keyboard": [
-            #         [{"text": "➕ Rate a Road"}],
-            #         [{"text": "📝 View Past Ratings"}]
-            #     ],
-            #     "resize_keyboard": True
-            # }
-            # send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
+        if text in ["/start","✅ Yes, I want to rate more roads"]:            
             rate_road(chat_id)
         
         elif text == "❌ No, I don't want to rate more roads":
@@ -336,7 +328,7 @@ def save_rating(chat_id):
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
     want_to_continue(chat_id)
-    rate_road(chat_id)
+    # rate_road(chat_id)
 
 def rate_road(chat_id):
     keyboard = {
