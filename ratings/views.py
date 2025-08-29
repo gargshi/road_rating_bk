@@ -199,14 +199,15 @@ def webhook_widgets(request):
 
         # Start
         if text == "/start":
-            keyboard = {
-                "keyboard": [
-                    [{"text": "➕ Rate a Road"}],
-                    [{"text": "📝 View Past Ratings"}]
-                ],
-                "resize_keyboard": True
-            }
-            send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
+            # keyboard = {
+            #     "keyboard": [
+            #         [{"text": "➕ Rate a Road"}],
+            #         [{"text": "📝 View Past Ratings"}]
+            #     ],
+            #     "resize_keyboard": True
+            # }
+            # send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
+            rate_road(chat_id)
 
         # Start rating
         elif text == "➕ Rate a Road":
@@ -304,7 +305,7 @@ def webhook_widgets(request):
         gps = f"{lat},{lon}"
         user_sessions[chat_id]["gps_coordinates"] = gps
         save_rating(chat_id)
-        del user_sessions[chat_id]
+        del user_sessions[chat_id]        
 
     return JsonResponse({"ok": True})
 
@@ -328,3 +329,14 @@ def save_rating(chat_id):
         fk_road_id=feedback,
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
+    rate_road(chat_id)
+
+def rate_road(chat_id):
+    keyboard = {
+        "keyboard": [
+            [{"text": "➕ Rate a Road"}],
+            [{"text": "📝 View Past Ratings"}]
+        ],
+        "resize_keyboard": True
+    }
+    send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
