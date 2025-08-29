@@ -208,6 +208,12 @@ def webhook_widgets(request):
             # }
             # send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
             rate_road(chat_id)
+        
+        elif text == "❌ No, I don't want to rate more roads":
+            send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start")
+            if chat_id in user_sessions:
+                del user_sessions[chat_id]
+            return JsonResponse({"ok": True})
 
         # Start rating
         elif text == "➕ Rate a Road":
@@ -329,8 +335,8 @@ def save_rating(chat_id):
         fk_road_id=feedback,
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
-    rate_road(chat_id)
     want_to_continue(chat_id)
+    rate_road(chat_id)
 
 def rate_road(chat_id):
     keyboard = {
