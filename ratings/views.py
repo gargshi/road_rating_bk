@@ -38,8 +38,8 @@ def send_message_markdown(chat_id, text, reply_markup=None):
         "text": text,
         "parse_mode": "Markdown"
     }
-    if reply_markup:
-        payload["reply_markup"] = reply_markup
+    # if reply_markup:
+    payload["reply_markup"] = reply_markup
     requests.post(url, json=payload)
     # response = requests.post(url, json=payload)
     # return response.json()
