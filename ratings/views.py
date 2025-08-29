@@ -295,6 +295,9 @@ def webhook_widgets(request):
                     )
             else:
                 send_message_markdown(chat_id, "ℹ️ You haven’t rated any roads yet.")
+        
+        else:
+            send_message_markdown(chat_id, "⚠️ Unrecognized command. Please use the buttons to navigate. To start a new rating, type /start")            
 
     # Handle location
     elif "location" in message:
