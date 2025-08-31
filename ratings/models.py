@@ -12,7 +12,7 @@ class RoadRating(models.Model):
 
 class UserConversation(models.Model):
     chat_id = models.CharField(max_length=50)
-    step = models.CharField(max_length=20, default="start")
+    # step = models.CharField(max_length=20, default="start")
 
     # Temporary storage during conversation
     # road_name = models.TextField(null=True, blank=True)
