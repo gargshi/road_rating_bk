@@ -29,4 +29,4 @@ class UserConversation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.chat_id} - {self.step}"
+        return f"{self.chat_id} - {self.fk_road_id}"
