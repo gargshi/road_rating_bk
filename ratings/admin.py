@@ -7,8 +7,8 @@ class RoadRatingAdmin(admin.ModelAdmin):
 	list_filter = ('rating', 'created_at')
 
 class UserConversationAdmin(admin.ModelAdmin):
-	list_display = ('chat_id', 'step', 'road_name', 'rating', 'comment', 'fk_road_id', 'updated_at')
-	search_fields = ('chat_id', 'road_name', 'comment')
+	list_display = ('chat_id', 'step', 'fk_road_id', 'updated_at')
+	search_fields = ('chat_id')
 	list_filter = ('step', 'updated_at')
 
 admin.site.register(RoadRating, RoadRatingAdmin)
