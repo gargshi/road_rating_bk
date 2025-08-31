@@ -323,10 +323,10 @@ def save_rating(chat_id):
     )
     UserConversation.objects.create(
         chat_id=chat_id,
-        road_name=session.get("road_name"),
-        rating=session.get("rating"),
-        comment=session.get("comment"),
-        gps_coordinates=session.get("gps_coordinates"),
+        # road_name=session.get("road_name"),
+        # rating=session.get("rating"),
+        # comment=session.get("comment"),
+        # gps_coordinates=session.get("gps_coordinates"),
         fk_road_id=feedback,
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
