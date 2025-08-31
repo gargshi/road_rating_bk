@@ -8,7 +8,7 @@ class RoadRatingAdmin(admin.ModelAdmin):
 
 class UserConversationAdmin(admin.ModelAdmin):
 	list_display = ('chat_id', 'step', 'fk_road_id', 'updated_at')
-	search_fields = ('chat_id')
+	search_fields = ('chat_id',)
 	list_filter = ('step', 'updated_at')
 
 admin.site.register(RoadRating, RoadRatingAdmin)
