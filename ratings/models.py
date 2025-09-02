@@ -37,7 +37,7 @@ class RoadRating(models.Model):
 
 class UserConversation(models.Model):
     # chat_id = models.CharField(max_length=50)    
-    fk_chat_id = models.OneToOneField(
+    fk_chat_id = models.ForeignKey(
         TeleUser, on_delete=models.CASCADE,
         related_name="fk_chat_id",
         null=True, blank=True
