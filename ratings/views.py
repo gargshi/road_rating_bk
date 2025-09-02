@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import RoadRating, UserConversation
+from .models import RoadRating, UserConversation, TeleUser, TeleUserStats
 from .serializers import RoadRatingSerializer, UserConversationSerializer
 from django.http import JsonResponse
 import requests, json
@@ -280,7 +280,7 @@ def webhook_widgets(request):
 
         # View past ratings
         elif text == "📝 View Past Ratings":
-            past_ratings = RoadRating.objects.filter(fk_road_id__chat_id=chat_id).order_by("-created_at")
+            past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
             if past_ratings.exists():
                 send_message_markdown(chat_id, "📝 Your past ratings:")
                 for rating in past_ratings:
@@ -321,17 +321,13 @@ def save_rating(chat_id):
         comment=session.get("comment"),
         gps_coordinates=session.get("gps_coordinates"),        
     )
+    t_user=TeleUser.objects.get_or_create(chat_id=chat_id)
     UserConversation.objects.create(
-        chat_id=chat_id,
-        # road_name=session.get("road_name"),
-        # rating=session.get("rating"),
-        # comment=session.get("comment"),
-        # gps_coordinates=session.get("gps_coordinates"),
+        fk_chat_id=t_user[0],       
         fk_road_id=feedback,
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
     want_to_continue(chat_id)
-    # rate_road(chat_id)
 
 def rate_road(chat_id):
     keyboard = {
