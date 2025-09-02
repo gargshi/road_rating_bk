@@ -206,11 +206,20 @@ def webhook_widgets(request):
         text = message["text"]
 
         # Start
-        if text in ["/start","✅ Yes, I want to rate more roads"]:            
+        if text in ["/start","✅ Yes, I want to rate more roads","START"]:            
             rate_road(chat_id)
         
         elif text == "❌ No, I don't want to rate more roads":
-            send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start")
+            send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start",
+                                  reply_markup={
+                                    "keyboard": [
+                                        [
+                                            {"text": "START"},
+                                        ]
+                                    ],
+                                    "resize_keyboard": True
+                                }
+                            )
             if chat_id in user_sessions:
                 del user_sessions[chat_id]
             return JsonResponse({"ok": True})
