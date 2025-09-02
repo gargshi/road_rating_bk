@@ -193,6 +193,11 @@ def webhook_widgets(request):
     data = json.loads(request.body.decode("utf-8")) #request.json()
     message = data.get("message", {})
     chat_id = message.get("chat", {}).get("id")
+    logger.info(f"Received message from {chat_id}: {message}")
+    logger.info(f"Current session for {chat_id}: {user_sessions.get(chat_id)}")
+
+    if not chat_id:
+        return JsonResponse({"ok": False})
 
     if "text" in message:
         text = message["text"]
