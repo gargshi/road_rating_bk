@@ -196,6 +196,9 @@ def webhook_widgets(request):
     logger.info(f"Received message from {chat_id}: {message}")
     logger.info(f"Current session for {chat_id}: {user_sessions.get(chat_id)}")
 
+    if user_sessions.get(chat_id) is None:
+        user_sessions[chat_id] = {}
+
     if not chat_id:
         return JsonResponse({"ok": False})
 
