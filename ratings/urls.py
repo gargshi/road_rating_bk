@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import RoadRatingListCreate,UserConversationListCreate
-from .views import webhook, webhook_widgets
+from .views import webhook_widgets
 
 urlpatterns = [
     path("ratings/", RoadRatingListCreate.as_view(), name="road-ratings"),
