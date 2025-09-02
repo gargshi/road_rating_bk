@@ -314,6 +314,9 @@ def webhook_widgets(request):
 def save_rating(chat_id):
     """Save rating to DB"""
     session = user_sessions.get(chat_id, {})
+    if not session:
+        send_message_markdown(chat_id, "⚠️ Session expired or invalid. Please start again with /start")
+        return
     logger.info(f"💾 Saving rating for chat_id {chat_id}: {session}")
     feedback = RoadRating.objects.create(
         road_name=session.get("road_name"),
