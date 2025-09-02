@@ -27,7 +27,7 @@ class TeleUserStats(models.Model):
 
 class RoadRating(models.Model):
     road_name = models.CharField(max_length=255, null=True, blank=True)
-    rating = models.IntegerField()  # 1–5 stars
+    rating = models.IntegerField(blank=True, null=True)  # 1–5 stars
     comment = models.TextField(blank=True, null=True)
     gps_coordinates = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
