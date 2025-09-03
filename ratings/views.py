@@ -254,5 +254,7 @@ def want_to_continue(chat_id):
     send_message_markdown(chat_id, "👋 Do you want to rate more roads?", reply_markup=keyboard)
 
 def escape_markdown(text: str) -> str:
+    if not text:  # catches None, empty string, etc.
+        return "---"
     escape_chars = r'[_*[\]()~`>#+\-=|{}.!]'
     return re.sub(escape_chars, r'\\\g<0>', text)
