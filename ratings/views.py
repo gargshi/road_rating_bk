@@ -177,9 +177,11 @@ def webhook_widgets(request):
         # View past ratings
         elif text in ["past_ratings"]:
             past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
+            logger.info(f"Found {past_ratings.count()} past ratings for chat_id {chat_id}")
             if past_ratings.exists():
                 send_message_markdown(chat_id, "📝 Your past ratings:")
                 for rating in past_ratings:
+                    logger.info(f"Found rating: {rating}")
                     maps_link = f"https://www.google.com/maps?q={rating.gps_coordinates}" if rating.gps_coordinates else "—"
                     send_message_markdown(
                         chat_id,
