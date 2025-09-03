@@ -5,6 +5,7 @@ from .serializers import RoadRatingSerializer, UserConversationSerializer
 from django.http import JsonResponse
 import requests, json
 import os
+import re
 from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.views.decorators.http import require_POST
@@ -185,9 +186,9 @@ def webhook_widgets(request):
                     maps_link = f"https://www.google.com/maps?q={rating.gps_coordinates}" if rating.gps_coordinates else "—"
                     send_message_markdown(
                         chat_id,
-                        f"Road: {rating.road_name}\n"
+                        f"Road: {escape_markdown(rating.road_name)}\n"
                         f"Rating: {rating.rating}\n"
-                        f"Comment: {rating.comment or '—'}\n"
+                        f"Comment: {escape_markdown(rating.comment) or '—'}\n"
                         f"Coordinates: {maps_link}\n"
                         f"Date: {rating.created_at.strftime('%Y-%m-%d %H:%M')}\n"
                     )
@@ -251,3 +252,7 @@ def want_to_continue(chat_id):
         "resize_keyboard": True
     }
     send_message_markdown(chat_id, "👋 Do you want to rate more roads?", reply_markup=keyboard)
+
+def escape_markdown(text: str) -> str:
+    escape_chars = r'[_*[\]()~`>#+\-=|{}.!]'
+    return re.sub(escape_chars, r'\\\g<0>', text)
