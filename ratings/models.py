@@ -42,7 +42,7 @@ class UserConversation(models.Model):
         related_name="fk_chat_id",
         null=True, blank=True
     )
-    state = models.CharField(max_length=50, default="START")
+    # state = models.CharField(max_length=50, default="START")
     # Link to final feedback (once submitted)
     fk_road_id = models.ForeignKey(
         RoadRating, on_delete=models.SET_NULL,
