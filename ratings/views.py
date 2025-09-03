@@ -20,19 +20,29 @@ class UserConversationListCreate(generics.ListCreateAPIView):
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-
-
-def send_message_text(chat_id, text):
-    url = f"{TELEGRAM_URL}"
-    payload = {
-        "chat_id": chat_id,
-        "text": text
+COMMANDS = {
+        "/start": "start",
+        "START": "start",
+        "✅ Yes, I want to rate more roads": "start",
+        "❌ No, I don't want to rate more roads": "stop",
+        "➕ Rate a Road": "rate",
+        "📝 View Past Ratings": "past_ratings",
+        "📊 View Dashboard - (tbd)": "dashboard",
+        "↩️ Exit": "exit",
     }
-    response = requests.post(url, json=payload)
-    return response.json()
+
+# def send_message_text(chat_id, text):
+#     url = f"{TELEGRAM_URL}"
+#     payload = {
+#         "chat_id": chat_id,
+#         "text": text
+#     }
+#     response = requests.post(url, json=payload)
+#     return response.json()
 
 def send_message_markdown(chat_id, text, reply_markup=None):
     url = f"{TELEGRAM_URL}"
+    # text=COMMANDS.get(text,text)  # map to command if exists
     payload = {
         "chat_id": chat_id,
         "text": text,
@@ -66,9 +76,12 @@ def webhook_widgets(request):
 
     if "text" in message:
         text = message["text"]
+        logger.info(f"Received text: {text}")
+        text=COMMANDS.get(text,text)
+        logger.info(f"Processed text command: {text}")
 
         # Start
-        if text in ["/start","✅ Yes, I want to rate more roads","START"]:            
+        if text in ["/start","✅ Yes, I want to rate more roads","START", "start"]:            
             rate_road(chat_id)
         
         elif text == "❌ No, I don't want to rate more roads":
