@@ -29,6 +29,10 @@ COMMANDS = {
         "📝 View Past Ratings": "past_ratings",
         "📊 View Dashboard - (tbd)": "dashboard",
         "↩️ Exit": "exit",
+        "⏭ Skip": "skip",
+        "📝 Add Comment":"add_comment",
+        "⏭ Skip Location": "skip_location",
+        "📍 Share Location": "share_location",        
     }
 
 # def send_message_text(chat_id, text):
@@ -81,10 +85,10 @@ def webhook_widgets(request):
         logger.info(f"Processed text command: {text}")
 
         # Start
-        if text in ["/start","✅ Yes, I want to rate more roads","START", "start"]:            
+        if text in ["start"]:            
             rate_road(chat_id)
         
-        elif text == "❌ No, I don't want to rate more roads":
+        elif text in ["stop","exit"]:
             send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start",
                                   reply_markup={
                                     "keyboard": [
@@ -100,7 +104,7 @@ def webhook_widgets(request):
             return JsonResponse({"ok": True})
 
         # Start rating
-        elif text in ["➕ Rate a Road","rate_road"]:
+        elif text in ["rate"]:
             user_sessions[chat_id] = {"step": "road_name"}
             send_message_markdown(chat_id, "📍 Please enter the road name:")
 
@@ -132,9 +136,9 @@ def webhook_widgets(request):
 
         # Handle comment step
         elif user_sessions.get(chat_id, {}).get("step") == "comment":
-            if text == "⏭ Skip":
+            if text == "skip":
                 user_sessions[chat_id]["comment"] = None
-            elif text == "📝 Add Comment":
+            elif text == "add_comment":
                 send_message_markdown(chat_id, "✍ Please type your comment:")
                 user_sessions[chat_id]["step"] = "comment_text"
                 return JsonResponse({"ok": True})
@@ -166,12 +170,12 @@ def webhook_widgets(request):
             send_message_markdown(chat_id, "📍 Please share the location:", reply_markup=keyboard)
 
         # Skip location
-        elif text == "⏭ Skip Location":
+        elif text == "skip_location":
             save_rating(chat_id)
             del user_sessions[chat_id]
 
         # View past ratings
-        elif text in ["📝 View Past Ratings","past_ratings"]:
+        elif text in ["past_ratings"]:
             past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
             if past_ratings.exists():
                 send_message_markdown(chat_id, "📝 Your past ratings:")
