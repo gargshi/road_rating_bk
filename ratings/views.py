@@ -211,27 +211,15 @@ def save_rating(chat_id):
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
     want_to_continue(chat_id)
 
-# def rate_road(chat_id):
-#     keyboard = {
-#         "keyboard": [
-#             [{"text": "➕ Rate a Road"}],
-#             [{"text": "📝 View Past Ratings"}],
-#             [{"text": "📊 View Dashboard - (tbd)"}],
-#             [{"text": "↩️ Exit"}]
-#         ],
-#         "resize_keyboard": True
-#     }
-#     send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
-
 def rate_road(chat_id):
     keyboard = {
-        "inline_keyboard": [
-            [{"text": "➕ Rate a Road", "callback_data": "rate_road"}],
-            [{"text": "📝 View Past Ratings", "callback_data": "past_ratings"}],
-            [{"text": "📊 View Dashboard - (tbd)", "callback_data": "dashboard"}],
-            [{"text": "↩️ Exit - in", "callback_data": "exit"}]
+        "keyboard": [
+            [{"text": "➕ Rate a Road"}],
+            [{"text": "📝 View Past Ratings"}],
+            [{"text": "📊 View Dashboard - (tbd)"}],
+            [{"text": "↩️ Exit"}]
         ],
-        # "resize_keyboard": True
+        "resize_keyboard": True
     }
     send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
 
