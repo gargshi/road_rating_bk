@@ -87,7 +87,7 @@ def webhook_widgets(request):
             return JsonResponse({"ok": True})
 
         # Start rating
-        elif text == "➕ Rate a Road":
+        elif text in ["➕ Rate a Road","rate_road"]:
             user_sessions[chat_id] = {"step": "road_name"}
             send_message_markdown(chat_id, "📍 Please enter the road name:")
 
@@ -158,7 +158,7 @@ def webhook_widgets(request):
             del user_sessions[chat_id]
 
         # View past ratings
-        elif text == "📝 View Past Ratings":
+        elif text in ["📝 View Past Ratings","past_ratings"]:
             past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
             if past_ratings.exists():
                 send_message_markdown(chat_id, "📝 Your past ratings:")
@@ -211,13 +211,27 @@ def save_rating(chat_id):
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
     want_to_continue(chat_id)
 
+# def rate_road(chat_id):
+#     keyboard = {
+#         "keyboard": [
+#             [{"text": "➕ Rate a Road"}],
+#             [{"text": "📝 View Past Ratings"}],
+#             [{"text": "📊 View Dashboard - (tbd)"}],
+#             [{"text": "↩️ Exit"}]
+#         ],
+#         "resize_keyboard": True
+#     }
+#     send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
+
 def rate_road(chat_id):
     keyboard = {
-        "keyboard": [
-            [{"text": "➕ Rate a Road"}],
-            [{"text": "📝 View Past Ratings"}]
+        "inline_keyboard": [
+            [{"text": "➕ Rate a Road", "callback_data": "rate_road"}],
+            [{"text": "📝 View Past Ratings", "callback_data": "past_ratings"}],
+            [{"text": "📊 View Dashboard - (tbd)", "callback_data": "dashboard"}],
+            [{"text": "↩️ Exit - in", "callback_data": "exit"}]
         ],
-        "resize_keyboard": True
+        # "resize_keyboard": True
     }
     send_message_markdown(chat_id, "👋 Welcome to Road Rating Bot!", reply_markup=keyboard)
 
