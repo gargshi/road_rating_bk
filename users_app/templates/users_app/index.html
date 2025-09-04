@@ -9,6 +9,7 @@
 		<h1>User Dashboard</h1>
 		<p>Welcome to the User Dashboard!</p>
 		<h2>Recent Road Ratings</h2>
+		{{ user_conversations}}
 		<table>
 			<thead>
 				<tr>
@@ -24,7 +25,7 @@
 			<tbody>
 				{% for user_conversation in user_conversations %}
 					<tr>
-						<td>{{ user_conversation.rating.id }}</td>
+						<td>{{ user_conversation }}</td>
 						<td>{{ user_conversation.rating.road_name }}</td>
 											
 					</tr>
