@@ -24,9 +24,13 @@
 			<tbody>
 				{% for user_conversation in user_conversations %}
 					<tr>
-						<td>{{ user_conversation }}</td>
+						<td>{{ user_conversation.fk_road_id.id }}</td>
 						<td>{{ user_conversation.fk_road_id.road_name }}</td>
-											
+						<td>{{ user_conversation.fk_road_id.created_at }}</td>
+						<td>{{ user_conversation.fk_road_id.rated_by }}</td>
+						<td>{{ user_conversation.fk_road_id.gps_coordinates }}</td>
+						<td>{{ user_conversation.fk_road_id.rating }}</td>
+						<td>{{ user_conversation.fk_road_id.comment }}</td>											
 					</tr>
 				{% endfor %}
 			</tbody>
