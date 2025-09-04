@@ -12,17 +12,21 @@
 		<table>
 			<thead>
 				<tr>
+					<th>Rating ID</th>
+					<th>Road Name</th>
+					<th>Date</th>
+					<th>Rated by</th>
 					<th>Location</th>
 					<th>Rating</th>
 					<th>Comment</th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for rating in ratings %}
+				{% for user_conversation in user_conversations %}
 					<tr>
-						<td>{{ rating.location }}</td>
-						<td>{{ rating.rating }}</td>
-						<td>{{ rating.comment }}</td>
+						<td>{{ user_conversations.rating.id }}</td>
+						<td>{{ user_conversations.rating.road_name }}</td>
+											
 					</tr>
 				{% endfor %}
 			</tbody>
