@@ -9,14 +9,23 @@
 		<h1>User Dashboard</h1>
 		<p>Welcome to the User Dashboard!</p>
 		<h2>Recent Road Ratings</h2>
-		<ul class="road-ratings" title="Recent Road Ratings">
-			{% for rating in ratings %}
-				<li>
-					<p>Location: {{ rating.location }}</p>
-					<p>Rating: {{ rating.rating }}</p>
-					<p>Comment: {{ rating.comment }}</p>
-				</li>
-			{% endfor %}
-		</ul>
+		<table>
+			<thead>
+				<tr>
+					<th>Location</th>
+					<th>Rating</th>
+					<th>Comment</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for rating in ratings %}
+					<tr>
+						<td>{{ rating.location }}</td>
+						<td>{{ rating.rating }}</td>
+						<td>{{ rating.comment }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>		
 	</body>
 </html>
