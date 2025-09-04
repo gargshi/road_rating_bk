@@ -8,5 +8,15 @@
 	<body>
 		<h1>User Dashboard</h1>
 		<p>Welcome to the User Dashboard!</p>
+		<h2>Recent Road Ratings</h2>
+		<ul class="road-ratings" title="Recent Road Ratings">
+			{% for rating in ratings %}
+				<li>
+					<p>Location: {{ rating.location }}</p>
+					<p>Rating: {{ rating.rating }}</p>
+					<p>Comment: {{ rating.comment }}</p>
+				</li>
+			{% endfor %}
+		</ul>
 	</body>
 </html>
