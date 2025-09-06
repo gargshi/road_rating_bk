@@ -21,7 +21,7 @@ def login_view(request):
 	return render(request, 'users_app/login.html')
 
 def login_submit(request):
-	user = authenticate(request, username=username, password=password)
+	# user = authenticate(request, username=username, password=password)
 	if request.method == 'POST':
 		username = request.POST.get('username')
 		password = request.POST.get('password')
