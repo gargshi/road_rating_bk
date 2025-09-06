@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from ratings.models import RoadRating, UserConversation
 
 # Create your views here.
@@ -34,3 +34,7 @@ def login_submit(request):
 			return render(request, 'users_app/login.html', {"error": "Invalid credentials"})
 
 	return render(request, 'users_app/login.html')
+
+def logout_view(request):
+	logout(request)
+	return redirect('login')

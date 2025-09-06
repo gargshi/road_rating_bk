@@ -6,6 +6,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
 	<body>
+		<!-- logout -->
+		<form method="post" action="{% url 'logout' %}">
+			{% csrf_token %}
+			<button type="submit">Logout</button>
+		</form>
 		<h1>User Dashboard</h1>
 		<p>Welcome to the User Dashboard!</p>
 		<h2>Recent Road Ratings</h2>		
