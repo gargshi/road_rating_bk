@@ -9,6 +9,7 @@ import re
 from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.views.decorators.http import require_POST
+from django.contrib.auth.models import User
 logger = logging.getLogger(__name__)
 
 class RoadRatingListCreate(generics.ListCreateAPIView):
@@ -86,7 +87,7 @@ def webhook_widgets(request):
         logger.info(f"Processed text command: {text}")
 
         # Start
-        if text in ["start"]:            
+        if text in ["start"]:                   
             rate_road(chat_id)
         
         elif text in ["stop","exit"]:
@@ -223,7 +224,8 @@ def save_rating(chat_id):
         comment=session.get("comment"),
         gps_coordinates=session.get("gps_coordinates"),        
     )
-    t_user=TeleUser.objects.get_or_create(chat_id=chat_id)
+    # t_user=TeleUser.objects.get_or_create(chat_id=chat_id)
+    t_user=create_teleuser_if_not_exists(chat_id=chat_id)
     UserConversation.objects.create(
         fk_chat_id=t_user[0],       
         fk_road_id=feedback,
@@ -258,3 +260,28 @@ def escape_markdown(text: str) -> str:
         return "---"
     escape_chars = r'[_*[\]()~`>#+\-=|{}.!]'
     return re.sub(escape_chars, r'\\\g<0>', text)
+
+def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, username=None, language_code=None, is_bot=False):
+    # always map to Django User (using chat_id as username if no explicit username provided)
+    user_username = str(chat_id)
+
+    user, user_created = User.objects.get_or_create(
+        username=user_username,
+        defaults={"password": None}  # no password, login is handled by Telegram bot
+    )
+
+    tele_user, created = TeleUser.objects.get_or_create(
+        chat_id=str(chat_id),
+        defaults={
+            "user": user,  # link to Django User
+            "first_name": first_name,
+            "last_name": last_name,
+            "language_code": language_code,
+            "is_bot": is_bot,
+        },
+    )
+
+    if created or user_created:
+        logger.info(f"Created new TeleUser: {tele_user} (linked to User: {user.username})")
+
+    return tele_user
