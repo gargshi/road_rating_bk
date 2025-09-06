@@ -227,7 +227,7 @@ def save_rating(chat_id):
     # t_user=TeleUser.objects.get_or_create(chat_id=chat_id)
     t_user=create_teleuser_if_not_exists(chat_id=chat_id)
     UserConversation.objects.create(
-        fk_chat_id=t_user[0],       
+        fk_chat_id=t_user,       
         fk_road_id=feedback,
     )
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
