@@ -87,7 +87,9 @@ def webhook_widgets(request):
         logger.info(f"Processed text command: {text}")
 
         # Start
-        if text in ["start"]:                   
+        if text in ["start"]:
+            t_user=create_teleuser_if_not_exists(chat_id=chat_id)
+            user_sessions[chat_id] = {"tuser": t_user}                
             rate_road(chat_id)
         
         elif text in ["stop","exit"]:
@@ -225,7 +227,8 @@ def save_rating(chat_id):
         gps_coordinates=session.get("gps_coordinates"),        
     )
     # t_user=TeleUser.objects.get_or_create(chat_id=chat_id)
-    t_user=create_teleuser_if_not_exists(chat_id=chat_id)
+    # t_user=create_teleuser_if_not_exists(chat_id=chat_id)
+    t_user=session.get("tuser") or create_teleuser_if_not_exists(chat_id=chat_id)
     UserConversation.objects.create(
         fk_chat_id=t_user,       
         fk_road_id=feedback,
@@ -265,10 +268,10 @@ def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, user
     # always map to Django User (using chat_id as username if no explicit username provided)
     user_username = str(chat_id)
 
-    user, user_created = User.objects.get_or_create(
-        username=user_username,
-        defaults={"password": "123456"}  # no password, login is handled by Telegram bot
-    )
+    user, user_created = User.objects.get_or_create(username=user_username)
+    if user_created:
+        user.set_password("123456")  # hash properly the password... password is currently hardcoded
+        user.save()
 
     tele_user, created = TeleUser.objects.get_or_create(
         chat_id=str(chat_id),
@@ -280,6 +283,12 @@ def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, user
             "is_bot": is_bot,
         },
     )
+    # Ensure the TeleUser is linked to the User
+    if tele_user.user is None and user:
+        tele_user.user = user
+        logger.info(f"Linking TeleUser {tele_user.chat_id} to User {user.username}")
+        tele_user.save()
+        logger.info(f"Linked TeleUser {tele_user.chat_id} to User {user.username}")
 
     if created or user_created:
         logger.info(f"Created new TeleUser: {tele_user} (linked to User: {user.username})")
