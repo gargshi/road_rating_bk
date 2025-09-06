@@ -36,5 +36,6 @@ def login_submit(request):
 	return render(request, 'users_app/login.html')
 
 def logout_view(request):
-	logout(request)
+	if request.user.is_authenticated:
+		logout(request)
 	return redirect('login')
