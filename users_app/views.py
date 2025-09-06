@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from ratings.models import RoadRating, UserConversation
+import logging
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 def index(request):
@@ -27,6 +29,7 @@ def login_submit(request):
 		password = request.POST.get('password')
 
 		user = authenticate(request, username=username, password=password)
+		logger.info(f"Login user: {user}, username: {username}, password: {password}")
 		if user is not None:
 			login(request, user)  # sets session
 			return redirect('index')  # redirect by URL name
