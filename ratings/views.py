@@ -267,7 +267,7 @@ def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, user
 
     user, user_created = User.objects.get_or_create(
         username=user_username,
-        defaults={"password": None}  # no password, login is handled by Telegram bot
+        defaults={"password": "123456"}  # no password, login is handled by Telegram bot
     )
 
     tele_user, created = TeleUser.objects.get_or_create(
