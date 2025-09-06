@@ -1,11 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 from ratings.models import RoadRating, UserConversation
 
 # Create your views here.
 def index(request):
 	#if not login
 	if not request.user.is_authenticated and request.path != '/login/':
-		return login_view(request)
+		return redirect('login')
 	#fetch ratings from db and pass to template
 	all_ratings = []  # Replace with actual query to fetch ratings
 	user_conversations = []  # Replace with actual query to fetch user conversations
@@ -20,15 +21,16 @@ def login_view(request):
 	return render(request, 'users_app/login.html')
 
 def login_submit(request):
-	# Handle login form submission
+	user = authenticate(request, username=username, password=password)
 	if request.method == 'POST':
 		username = request.POST.get('username')
 		password = request.POST.get('password')
-		# Authenticate user (this is a placeholder, implement actual authentication)
-		if username == 'admin' and password == 'password':
-			# Redirect to index or dashboard after successful login
-			return index(request)
-			# return render(request, 'users_app/index.html', {"message": "Login successful!"})
+
+		user = authenticate(request, username=username, password=password)
+		if user is not None:
+			login(request, user)  # sets session
+			return redirect('index')  # redirect by URL name
 		else:
 			return render(request, 'users_app/login.html', {"error": "Invalid credentials"})
+
 	return render(request, 'users_app/login.html')
