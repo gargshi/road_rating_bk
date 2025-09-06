@@ -5,7 +5,7 @@ from ratings.models import RoadRating, UserConversation
 def index(request):
 	#if not login
 	if not request.user.is_authenticated and request.path != '/login/':
-		return render(request, 'users_app/login.html')
+		return login_view(request)
 	#fetch ratings from db and pass to template
 	all_ratings = []  # Replace with actual query to fetch ratings
 	user_conversations = []  # Replace with actual query to fetch user conversations
