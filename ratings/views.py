@@ -120,7 +120,8 @@ def webhook_widgets(request):
             user_sessions[chat_id] = {"step": "dashboard"}
             secret_otp=random.randint(100000,999999)
             user_sessions[chat_id]["otp"]=secret_otp
-            token = encode_chat_id(str(chat_id))            
+            token = encode_chat_id(str(chat_id))
+            logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
             if set_otp_for_user(chat_id,secret_otp):
                 send_message_markdown(chat_id, f"To access the dashboard, go to https://road-rating-bk.onrender.com/login?uid={token} and enter password: {secret_otp}")
             else:
