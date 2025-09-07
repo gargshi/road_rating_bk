@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from ratings.models import RoadRating, UserConversation
 import logging
+from utilities.cryptography import decode_chat_id
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -20,12 +21,20 @@ def index(request):
 	return render(request, 'users_app/index.html', context)
 
 def login_view(request):
+	token = request.GET.get('uid')
+	if token:
+		chat_id = decode_chat_id(token)
+		if chat_id:
+			request.session['chat_id'] = chat_id
+			logger.info(f"Login view: decoded chat_id {chat_id} from token")
+		else:
+			logger.warning(f"Login view: failed to decode chat_id from token {token}")
 	return render(request, 'users_app/login.html')
 
 def login_submit(request):
 	# user = authenticate(request, username=username, password=password)
 	if request.method == 'POST':
-		username = request.POST.get('username')
+		username = request.session.get('chat_id')
 		password = request.POST.get('password')
 
 		user = authenticate(request, username=username, password=password)
@@ -41,4 +50,5 @@ def login_submit(request):
 def logout_view(request):
 	if request.user.is_authenticated:
 		logout(request)
+	request.session.flush()
 	return redirect('login')
