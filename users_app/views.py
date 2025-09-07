@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from ratings.models import RoadRating, UserConversation
 import logging
 from utilities.cryptography import decode_chat_id
+from urllib.parse import unquote
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -23,6 +24,7 @@ def index(request):
 def login_view(request):
 	token = request.GET.get('uid')
 	if token:
+		token = unquote(token)
 		chat_id = decode_chat_id(token)
 		if chat_id:
 			request.session['chat_id'] = chat_id

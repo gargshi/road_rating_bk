@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User
 import random
 from utilities.cryptography import encode_chat_id
+from urllib.parse import quote
 logger = logging.getLogger(__name__)
 
 class RoadRatingListCreate(generics.ListCreateAPIView):
@@ -121,10 +122,12 @@ def webhook_widgets(request):
             secret_otp=random.randint(100000,999999)
             user_sessions[chat_id]["otp"]=secret_otp
             token = encode_chat_id(str(chat_id))
+            safe_token = quote(token, safe="")
+            url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}"
             logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
             if set_otp_for_user(chat_id,secret_otp):
                 logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
-                send_message_markdown(chat_id, escape_markdown(f"To access the dashboard, go to https://road-rating-bk.onrender.com/login?uid={token} and enter password: {secret_otp}"))
+                send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}")
             else:
                 send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
             # send_message_markdown(chat_id, "📊 Dashboard feature is under development. Stay tuned!")
