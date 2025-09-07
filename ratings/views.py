@@ -123,6 +123,7 @@ def webhook_widgets(request):
             token = encode_chat_id(str(chat_id))
             logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
             if set_otp_for_user(chat_id,secret_otp):
+                logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
                 send_message_markdown(chat_id, f"To access the dashboard, go to https://road-rating-bk.onrender.com/login?uid={token} and enter password: {secret_otp}")
             else:
                 send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
