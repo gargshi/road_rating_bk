@@ -27,6 +27,7 @@ def encode_chat_id(chat_id: str) -> str:
 
     chat_b64 = base64.urlsafe_b64encode(chat_id.encode()).decode().rstrip("=")
     sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip("=")
+    logger.info(f"encode_chat_id: chat_id={chat_b64}, sig={sig_b64}")
 
     return f"{chat_b64}.{sig_b64}"
 
@@ -43,6 +44,8 @@ def decode_chat_id(token: str) -> str | None:
         sig = base64.urlsafe_b64decode(sig_b64.encode())
 
         expected_sig = hmac.new(settings.SECRET_KEY.encode(), chat_id.encode(), hashlib.sha256).digest()
+        logger.info(f"decode_chat_id: token={token},\n chat_id={chat_id.decode()},\n sig={base64.urlsafe_b64encode(sig).decode()},\n expected_sig={base64.urlsafe_b64encode(expected_sig).decode()}")
+
 
         if hmac.compare_digest(sig, expected_sig):
             return chat_id
