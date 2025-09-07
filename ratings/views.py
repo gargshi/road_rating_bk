@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User
+import random
 logger = logging.getLogger(__name__)
 
 class RoadRatingListCreate(generics.ListCreateAPIView):
@@ -22,6 +23,7 @@ class UserConversationListCreate(generics.ListCreateAPIView):
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+LOGIN_URL = "https://road-rating-bk.onrender.com/"
 COMMANDS = {
         "/start": "start",
         "START": "start",
@@ -34,7 +36,7 @@ COMMANDS = {
         "⏭ Skip": "skip",
         "📝 Add Comment":"add_comment",
         "⏭ Skip Location": "skip_location",
-        "📍 Share Location": "share_location",        
+        "📍 Share Location": "share_location",
     }
 
 # def send_message_text(chat_id, text):
@@ -111,6 +113,17 @@ def webhook_widgets(request):
         elif text in ["rate"]:
             user_sessions[chat_id] = {"step": "road_name"}
             send_message_markdown(chat_id, "📍 Please enter the road name:")
+        
+        #go to dashboard - tbd
+        elif text in ["dashboard"]:
+            user_sessions[chat_id] = {"step": "dashboard"}
+            secret_otp=random.randint(100000,999999)
+            user_sessions[chat_id]["otp"]=secret_otp            
+            if set_otp_for_user(chat_id,secret_otp):
+                send_message_markdown(chat_id, f"To access the dashboard, go to https://road-rating-bk.onrender.com/ and enter password: {secret_otp}")
+            else:
+                send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
+            # send_message_markdown(chat_id, "📊 Dashboard feature is under development. Stay tuned!")
 
         # Handle road name
         elif user_sessions.get(chat_id, {}).get("step") == "road_name":
@@ -236,6 +249,19 @@ def save_rating(chat_id):
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
     want_to_continue(chat_id)
 
+def set_otp_for_user(chat_id,otp):
+    try:
+        session = user_sessions.get(chat_id, {})
+        t_user=session.get("tuser") or TeleUser.objects.get(chat_id=chat_id)
+        if t_user and t_user.user:
+            t_user.user.set_password(str(otp))
+            t_user.user.save()
+            logger.info(f"Set OTP for user {t_user.user.username}")
+            return True
+    except TeleUser.DoesNotExist:
+        logger.error(f"TeleUser with chat_id {chat_id} does not exist")
+    return False
+
 def rate_road(chat_id):
     keyboard = {
         "keyboard": [
@@ -267,6 +293,7 @@ def escape_markdown(text: str) -> str:
 def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, username=None, language_code=None, is_bot=False):
     # always map to Django User (using chat_id as username if no explicit username provided)
     user_username = str(chat_id)
+    session = user_sessions.get(chat_id, {})
 
     user, user_created = User.objects.get_or_create(username=user_username)
     if user_created:
