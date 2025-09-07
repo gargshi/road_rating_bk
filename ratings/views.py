@@ -50,13 +50,13 @@ COMMANDS = {
 #     response = requests.post(url, json=payload)
 #     return response.json()
 
-def send_message_markdown(chat_id, text, reply_markup=None):
+def send_message_markdown(chat_id, text, reply_markup=None, parse_mode="Markdown"):
     url = f"{TELEGRAM_URL}"
     # text=COMMANDS.get(text,text)  # map to command if exists
     payload = {
         "chat_id": chat_id,
         "text": text,
-        "parse_mode": "Markdown"
+        "parse_mode": parse_mode
     }
     if reply_markup:
         payload["reply_markup"] = reply_markup
@@ -127,7 +127,7 @@ def webhook_widgets(request):
             logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
             if set_otp_for_user(chat_id,secret_otp):
                 logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
-                send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}")
+                send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}", parse_mode="HTML")
             else:
                 send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
             # send_message_markdown(chat_id, "📊 Dashboard feature is under development. Stay tuned!")
