@@ -19,12 +19,15 @@
 
 import hmac, hashlib, base64
 from django.conf import settings
+import logging
+logger = logging.getLogger(__name__)
 
 def encode_chat_id(chat_id: str) -> str:
     secret = settings.SECRET_KEY.encode()
     sig = hmac.new(secret, chat_id.encode(), hashlib.sha256).digest()
     chat_b64 = base64.urlsafe_b64encode(chat_id.encode()).decode().rstrip("=")
     sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip("=")
+    logger.info(f"encode_chat_id: chat_id={chat_id}, chat_b64={chat_b64}, sig_b64={sig_b64}")
     return f"{chat_b64}.{sig_b64}"
 
 def decode_chat_id(token: str) -> str | None:
@@ -39,6 +42,8 @@ def decode_chat_id(token: str) -> str | None:
         sig = base64.urlsafe_b64decode(sig_b64.encode())
 
         expected_sig = hmac.new(settings.SECRET_KEY.encode(), chat_id.encode(), hashlib.sha256).digest()
+        logger.info(f"decode_chat_id: token={token}, chat_id={chat_id}, sig={sig_b64}, expected_sig={base64.urlsafe_b64encode(expected_sig).decode().rstrip('=')}")
+        logger.info(f"decode_chat_id: sig matches expected: {hmac.compare_digest(sig, expected_sig)}")
         if hmac.compare_digest(sig, expected_sig):
             return chat_id
     except Exception as e:
