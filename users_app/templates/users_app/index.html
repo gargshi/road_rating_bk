@@ -41,7 +41,7 @@
 						<td>{{ user_conversation.fk_road_id.created_at }}</td>
 						<td>{{ user_conversation.fk_road_id.rated_by }}</td>
 						<td>{{ user_conversation.fk_road_id.gps_coordinates }}
-							<a href="#" onclick="this.href=generateMapLink('{{ user_conversation.fk_road_id.gps_coordinates }}')">View on Map</a>
+							<a href="#" target="_blank" onclick="this.href=generateMapLink('{{ user_conversation.fk_road_id.gps_coordinates }}')">View on Map</a>
 						</td>						
 						<td>{{ user_conversation.fk_road_id.rating }}</td>
 						<td>{{ user_conversation.fk_road_id.comment }}</td>											
