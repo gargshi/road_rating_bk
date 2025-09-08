@@ -14,8 +14,12 @@ def index(request):
 	#fetch ratings from db and pass to template
 	all_ratings = []  # Replace with actual query to fetch ratings
 	user_conversations = []  # Replace with actual query to fetch user conversations
-	user_conversations = UserConversation.objects.all().order_by('-updated_at')[:10]
-
+	login_user_id = request.session.get('chat_id')
+	# user_conversations = UserConversation.objects.all().order_by('-updated_at')[:10]
+	if login_user_id:
+		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')[:10]
+		# all_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=login_user_id).order_by('-created_at')[:10]
+		logger.info(f"Index view: fetched {len(user_conversations)} conversations and {len(all_ratings)} ratings for user {login_user_id}")
 	# all_ratings = RoadRating.objects.all().order_by('-created_at')[:10]
 
 	context = {"ratings": all_ratings, "user_conversations": user_conversations}
