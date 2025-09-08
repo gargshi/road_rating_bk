@@ -53,4 +53,7 @@ def logout_view(request):
 	if request.user.is_authenticated:
 		logout(request)
 	request.session.flush()
-	return redirect('login')
+	return redirect('thanks') # redirect to ending page.... telling the user to login again.... tbdd
+
+def thanks_view(request):
+	return render(request, 'users_app/thanks.html')
