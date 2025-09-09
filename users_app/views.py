@@ -27,12 +27,16 @@ def index(request):
 		logger.info(f"Index view: fetched {len(user_conversations)} conversations and {len(all_ratings)} ratings for user {login_user_id}")
 	else:
 		logger.warning("Index view: No chat_id in session")
+		logout(request)
 	# all_ratings = RoadRating.objects.all().order_by('-created_at')[:10]
 
 	context = {"ratings": all_ratings, "user_conversations": user_conversations}
 	return render(request, 'users_app/index.html', context)
 
 def login_view(request):
+	# If already logged in, redirect to index
+	if request.user.is_authenticated:
+		return redirect('index')
 	token = request.GET.get('uid')
 	if token:
 		token = unquote(token)
