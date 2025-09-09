@@ -46,8 +46,10 @@ def login_view(request):
 
 def login_submit(request):
 	# user = authenticate(request, username=username, password=password)
-	
-	username = request.session.get('chat_id')	
+	username = request.session.get('chat_id')
+	if request.method == "POST":
+		if not request.POST.get("password"):
+			return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
 	password = (
 		request.session.pop('otp_from_url', None)  # consume once if from URL
 		or request.POST.get("password")            # manual login
@@ -60,15 +62,15 @@ def login_submit(request):
 	except TeleUser.DoesNotExist:
 		return render(request, 'users_app/login.html', {"error": "User not found"})
 		
-	if logging_in_user.otp_active:
-		return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
-	logging_in_user.otp_active=True
-	logging_in_user.save()
 	
 	user = authenticate(request, username=username, password=password)
 	logger.info(f"Login user: {user}, username: {username}, password: {password}")
 	
 	if user is not None:
+		if logging_in_user.otp_active:
+			return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+		logging_in_user.otp_active=True
+		logging_in_user.save()
 		login(request, user)  # sets session
 		return redirect('index')  # redirect by URL name
 	else:
@@ -79,7 +81,7 @@ def logout_view(request):
 		logged_in_user = TeleUser.objects.get(chat_id=request.session.get('chat_id'))
 		if logged_in_user:
 			logged_in_user.otp_active=False
-			logged_in_user.user.password = generate_random_otp()  # Invalidate the password
+			logged_in_user.user.set_password(generate_random_otp())  # Invalidate the password
 			logged_in_user.user.save()
 			logged_in_user.save()
 			logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")
