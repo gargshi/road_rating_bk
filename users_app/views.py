@@ -1,3 +1,4 @@
+import random, string
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from ratings.models import RoadRating, UserConversation
@@ -66,6 +67,7 @@ def logout_view(request):
 		logged_in_user = TeleUser.objects.get(chat_id=request.session.get('chat_id'))
 		if logged_in_user:
 			logged_in_user.otp_active=False
+			logged_in_user.user.password = generate_random_otp()  # Invalidate the password
 			logged_in_user.save()
 			logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")
 		logout(request)		
@@ -74,3 +76,8 @@ def logout_view(request):
 
 def thanks_view(request):
 	return render(request, 'users_app/thanks.html')
+
+def generate_random_otp(k=6):
+	"""Generate a random 6-digit OTP."""
+	chars = string.ascii_letters + string.digits
+	return ''.join(random.choices(chars, k=k))
