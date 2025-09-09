@@ -38,6 +38,7 @@ def login_view(request):
 			logger.info(f"Login view: decoded chat_id {chat_id} from token")
 			if otp_from_url:
 				request.session['otp_from_url'] = otp_from_url
+				logger.info(f"Login view: OTP from URL: {otp_from_url}")
 				return redirect("login_submit")
 		else:
 			logger.warning(f"Login view: failed to decode chat_id from token {token}")
@@ -45,37 +46,33 @@ def login_view(request):
 
 def login_submit(request):
 	# user = authenticate(request, username=username, password=password)
-	if request.method == 'POST':
-		username = request.session.get('chat_id')
-		# password = request.POST.get('password')
-		# password = request.GET.get("otp") or request.POST.get("password")
-		password = (
-			request.session.pop('otp_from_url', None)  # consume once if from URL
-			or request.POST.get("password")            # manual login
-		)
-		if not password:
-			return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
+	
+	username = request.session.get('chat_id')	
+	password = (
+		request.session.pop('otp_from_url', None)  # consume once if from URL
+		or request.POST.get("password")            # manual login
+	)
+	if not password:
+		return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
+	
+	try:
+		logging_in_user = TeleUser.objects.get(chat_id=username)
+	except TeleUser.DoesNotExist:
+		return render(request, 'users_app/login.html', {"error": "User not found"})
 		
-		try:
-			logging_in_user = TeleUser.objects.get(chat_id=username)
-		except TeleUser.DoesNotExist:
-			return render(request, 'users_app/login.html', {"error": "User not found"})
-			
-		if logging_in_user.otp_active:
-			return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
-		logging_in_user.otp_active=True
-		logging_in_user.save()
-		
-		user = authenticate(request, username=username, password=password)
-		logger.info(f"Login user: {user}, username: {username}, password: {password}")
-		
-		if user is not None:
-			login(request, user)  # sets session
-			return redirect('index')  # redirect by URL name
-		else:
-			return render(request, 'users_app/login.html', {"error": "Invalid credentials/OTP/URL"})		
-
-	return render(request, 'users_app/login.html')
+	if logging_in_user.otp_active:
+		return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+	logging_in_user.otp_active=True
+	logging_in_user.save()
+	
+	user = authenticate(request, username=username, password=password)
+	logger.info(f"Login user: {user}, username: {username}, password: {password}")
+	
+	if user is not None:
+		login(request, user)  # sets session
+		return redirect('index')  # redirect by URL name
+	else:
+		return render(request, 'users_app/login.html', {"error": "Invalid credentials/OTP/URL"})	
 
 def logout_view(request):
 	if request.user.is_authenticated:
