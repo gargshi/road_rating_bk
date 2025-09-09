@@ -68,6 +68,7 @@ def logout_view(request):
 		if logged_in_user:
 			logged_in_user.otp_active=False
 			logged_in_user.user.password = generate_random_otp()  # Invalidate the password
+			logged_in_user.user.save()
 			logged_in_user.save()
 			logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")
 		logout(request)		
