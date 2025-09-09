@@ -54,7 +54,7 @@ def login_submit(request):
 	)
 	if not password:
 		return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
-	
+	logger.info(f"Login view: OTP: {password}, username: {username}")
 	try:
 		logging_in_user = TeleUser.objects.get(chat_id=username)
 	except TeleUser.DoesNotExist:
