@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 import random
 from utilities.cryptography import encode_chat_id
 from urllib.parse import quote
+from users_app.views import enable_login
 logger = logging.getLogger(__name__)
 
 class RoadRatingListCreate(generics.ListCreateAPIView):
@@ -110,6 +111,7 @@ def webhook_widgets(request):
         #go to dashboard - tbd
         elif text in ["dashboard"]:
             user_sessions[chat_id] = {"step": "dashboard"}
+            enable_login(chat_id, enable=True)
             secret_otp=random.randint(100000,999999)
             user_sessions[chat_id]["otp"]=secret_otp
             token = encode_chat_id(str(chat_id))
