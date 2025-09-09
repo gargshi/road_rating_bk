@@ -29,52 +29,43 @@ def index(request):
 
 def login_view(request):
 	token = request.GET.get('uid')
-	otp_from_url = request.GET.get("otp")
 	if token:
 		token = unquote(token)
 		chat_id = decode_chat_id(token)
 		if chat_id:
 			request.session['chat_id'] = chat_id
 			logger.info(f"Login view: decoded chat_id {chat_id} from token")
-			if otp_from_url:
-				request.session['otp_from_url'] = otp_from_url
-				logger.info(f"Login view: OTP from URL: {otp_from_url}")
-				return redirect("login_submit")
 		else:
 			logger.warning(f"Login view: failed to decode chat_id from token {token}")
 	return render(request, 'users_app/login.html')
 
-def login_submit(request):
-	# user = authenticate(request, username=username, password=password)
-	username = request.session.get('chat_id')
-	if request.method == "POST":
-		if not request.POST.get("password"):
+def login_submit(request):	
+	if request.method == "POST":		
+		username = request.session.get('chat_id')
+		password = request.POST.get("password")
+		otp_status=False
+		if not password:
 			return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
-	password = (
-		request.session.pop('otp_from_url', None)  # consume once if from URL
-		or request.POST.get("password")            # manual login
-	)
-	if not password:
-		return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
-	logger.info(f"Login view: OTP: {password}, username: {username}")
-	try:
-		logging_in_user = TeleUser.objects.get(chat_id=username)
-	except TeleUser.DoesNotExist:
-		return render(request, 'users_app/login.html', {"error": "User not found"})
+		logger.info(f"Login view: OTP: {password}, username: {username}")
+		try:			
+			logging_in_user = TeleUser.objects.get(chat_id=username)
+			if logging_in_user.otp_active:
+				return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+			logging_in_user.otp_active=True
+			otp_status=logging_in_user.otp_active
+			logging_in_user.save()
+		except TeleUser.DoesNotExist:
+			return render(request, 'users_app/login.html', {"error": "User not found"})
+			
 		
-	
-	user = authenticate(request, username=username, password=password)
-	logger.info(f"Login user: {user}, username: {username}, password: {password}")
-	
-	if user is not None:
-		if logging_in_user.otp_active:
-			return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
-		logging_in_user.otp_active=True
-		logging_in_user.save()
-		login(request, user)  # sets session
-		return redirect('index')  # redirect by URL name
-	else:
-		return render(request, 'users_app/login.html', {"error": "Invalid credentials/OTP/URL"})	
+		user = authenticate(request, username=username, password=password)
+		logger.info(f"Login user: {user}, username: {username}, password: {password}")
+		
+		if user is not None:
+			login(request, user)  # sets session
+			return redirect('index')  # redirect by URL name
+		else:
+			return render(request, 'users_app/login.html', {"error": "Invalid credentials/OTP/URL"})	
 
 def logout_view(request):
 	if request.user.is_authenticated:
@@ -84,7 +75,7 @@ def logout_view(request):
 			logged_in_user.user.set_password(generate_random_otp())  # Invalidate the password
 			logged_in_user.user.save()
 			logged_in_user.save()
-			logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")
+			logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")		
 		logout(request)		
 	request.session.flush()
 	return redirect('thanks') # redirect to ending page.... telling the user to login again.... tbdd
@@ -96,3 +87,19 @@ def generate_random_otp(k=6):
 	"""Generate a random 6-digit OTP."""
 	chars = string.ascii_letters + string.digits
 	return ''.join(random.choices(chars, k=k))
+
+def enable_login(chat_id, enable=True):
+	# Enable OTP for the user
+	logged_in_user = TeleUser.objects.get(chat_id=chat_id)
+	if logged_in_user:
+		if enable:
+			logged_in_user.otp_active=True
+			logger.info(f"Activated session for user {logged_in_user.chat_id}")
+		else:		
+			logged_in_user.otp_active=False
+			logged_in_user.user.set_password(generate_random_otp())  # Invalidate the password
+			logged_in_user.user.save()
+			logger.info(f"Deactivated session for user {logged_in_user.chat_id}")
+		logged_in_user.save()
+	else:
+		logger.warning(f"Enable login: User with chat_id {chat_id} not found")
