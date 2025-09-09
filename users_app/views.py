@@ -16,6 +16,8 @@ def index(request):
 	#fetch ratings from db and pass to template
 	all_ratings = []  # Replace with actual query to fetch ratings
 	user_conversations = []  # Replace with actual query to fetch user conversations
+	logger.info(f"Index view: Current session chat_id: {request.session.get('chat_id')}, Authenticated user: {request.user}")
+	logger.info(f"session : {request.session.items()}")
 	login_user_id = request.session.get('chat_id')
 	# user_conversations = UserConversation.objects.all().order_by('-updated_at')[:10]
 	logger.info(f"Index view: Current session chat_id: {login_user_id}, Authenticated user: {request.user}")
