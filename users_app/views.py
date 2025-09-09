@@ -47,21 +47,21 @@ def login_submit(request):
 		if not password:
 			return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
 		logger.info(f"Login view: OTP: {password}, username: {username}")
-		try:			
-			logging_in_user = TeleUser.objects.get(chat_id=username)
-			if logging_in_user.otp_active:
-				return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
-			logging_in_user.otp_active=True
-			otp_status=logging_in_user.otp_active
-			logging_in_user.save()
-		except TeleUser.DoesNotExist:
-			return render(request, 'users_app/login.html', {"error": "User not found"})
+		
 			
 		
 		user = authenticate(request, username=username, password=password)
 		logger.info(f"Login user: {user}, username: {username}, password: {password}")
 		
 		if user is not None:
+			try:			
+				logging_in_user = TeleUser.objects.get(chat_id=username)
+				if logging_in_user.otp_active:
+					return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+				logging_in_user.otp_active=True				
+				logging_in_user.save()
+			except TeleUser.DoesNotExist:
+				return render(request, 'users_app/login.html', {"error": "User not found"})
 			login(request, user)  # sets session
 			return redirect('index')  # redirect by URL name
 		else:
