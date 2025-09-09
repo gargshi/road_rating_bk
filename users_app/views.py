@@ -66,7 +66,16 @@ def login_submit(request):
 			try:			
 				logging_in_user = TeleUser.objects.get(chat_id=username)
 				if logging_in_user.otp_active:
-					return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+					logged_in_user = logging_in_user
+					if logged_in_user:
+						logged_in_user.otp_active=False
+						logged_in_user.user.set_password(generate_random_otp())  # Invalidate the password
+						logged_in_user.user.save()
+						logged_in_user.save()
+						logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")		
+						logout(request)		
+						request.session.flush()
+					return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please generate new OTP"})
 				logging_in_user.otp_active=True				
 				logging_in_user.save()
 			except TeleUser.DoesNotExist:
