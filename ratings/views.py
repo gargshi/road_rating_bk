@@ -124,10 +124,12 @@ def webhook_widgets(request):
             token = encode_chat_id(str(chat_id))
             safe_token = quote(token, safe="")
             url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}"
+            auto_login_url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}&otp={secret_otp}"
             logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
             if set_otp_for_user(chat_id,secret_otp):
                 logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
                 send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}", parse_mode="HTML")
+                send_message_markdown(chat_id, f"To auto-login, go to {auto_login_url} \n Warning: Do not share your OTP or auto-login link with anyone", parse_mode="HTML")
             else:
                 send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
             # send_message_markdown(chat_id, "📊 Dashboard feature is under development. Stay tuned!")

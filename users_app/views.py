@@ -43,7 +43,8 @@ def login_submit(request):
 	# user = authenticate(request, username=username, password=password)
 	if request.method == 'POST':
 		username = request.session.get('chat_id')
-		password = request.POST.get('password')
+		# password = request.POST.get('password')
+		password = request.GET.get("otp") or request.POST.get("password")
 		logging_in_user = TeleUser.objects.get(chat_id=username)
 		if logging_in_user:
 			if logging_in_user.otp_active:
@@ -56,7 +57,7 @@ def login_submit(request):
 				login(request, user)  # sets session
 				return redirect('index')  # redirect by URL name
 			else:
-				return render(request, 'users_app/login.html', {"error": "Invalid credentials"})
+				return render(request, 'users_app/login.html', {"error": "Invalid credentials/OTP/URL"})
 		else:
 			return render(request, 'users_app/login.html', {"error": "User not found"})
 
