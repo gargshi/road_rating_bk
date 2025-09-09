@@ -11,6 +11,7 @@ class TeleUser(models.Model):
     is_bot = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    otp_active = models.BooleanField(default=False) #check if otp is active for this user
     last_interaction_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
