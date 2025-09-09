@@ -111,7 +111,7 @@ def webhook_widgets(request):
         #go to dashboard - tbd
         elif text in ["dashboard"]:
             user_sessions[chat_id] = {"step": "dashboard"}
-            enable_login(chat_id, enable=True)
+            enable_login(chat_id, enable=False)
             secret_otp=random.randint(100000,999999)
             user_sessions[chat_id]["otp"]=secret_otp
             token = encode_chat_id(str(chat_id))
