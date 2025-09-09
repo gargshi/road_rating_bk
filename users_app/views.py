@@ -4,6 +4,7 @@ from ratings.models import RoadRating, UserConversation
 import logging
 from utilities.cryptography import decode_chat_id
 from urllib.parse import unquote
+from ratings.models import TeleUser
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -42,20 +43,30 @@ def login_submit(request):
 	if request.method == 'POST':
 		username = request.session.get('chat_id')
 		password = request.POST.get('password')
-
-		user = authenticate(request, username=username, password=password)
-		logger.info(f"Login user: {user}, username: {username}, password: {password}")
-		if user is not None:
-			login(request, user)  # sets session
-			return redirect('index')  # redirect by URL name
+		logging_in_user = TeleUser.objects.get(chat_id=username)
+		if logging_in_user:
+			if logging_in_user.otp_active:
+				return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+			user = authenticate(request, username=username, password=password)
+			logger.info(f"Login user: {user}, username: {username}, password: {password}")
+			if user is not None:
+				login(request, user)  # sets session
+				return redirect('index')  # redirect by URL name
+			else:
+				return render(request, 'users_app/login.html', {"error": "Invalid credentials"})
 		else:
-			return render(request, 'users_app/login.html', {"error": "Invalid credentials"})
+			return render(request, 'users_app/login.html', {"error": "User not found"})
 
 	return render(request, 'users_app/login.html')
 
 def logout_view(request):
 	if request.user.is_authenticated:
-		logout(request)
+		logged_in_user = TeleUser.objects.get(chat_id=request.session.get('chat_id'))
+		if logged_in_user:
+			logged_in_user.otp_active=False
+			logged_in_user.save()
+			logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")
+		logout(request)		
 	request.session.flush()
 	return redirect('thanks') # redirect to ending page.... telling the user to login again.... tbdd
 

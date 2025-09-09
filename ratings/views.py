@@ -262,6 +262,8 @@ def set_otp_for_user(chat_id,otp):
         t_user=session.get("tuser") or TeleUser.objects.get(chat_id=chat_id)
         if t_user and t_user.user:
             t_user.user.set_password(str(otp))
+            t_user.otp_active=True
+            t_user.save()
             t_user.user.save()
             logger.info(f"Set OTP for user {t_user.user.username}")
             return True
