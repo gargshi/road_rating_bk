@@ -47,6 +47,8 @@ def login_submit(request):
 		if logging_in_user:
 			if logging_in_user.otp_active:
 				return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please contact support."})
+			logging_in_user.otp_active=True
+			logging_in_user.save()
 			user = authenticate(request, username=username, password=password)
 			logger.info(f"Login user: {user}, username: {username}, password: {password}")
 			if user is not None:
