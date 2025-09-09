@@ -33,22 +33,13 @@ COMMANDS = {
         "❌ No, I don't want to rate more roads": "stop",
         "➕ Rate a Road": "rate",
         "📝 View Past Ratings": "past_ratings",
-        "📊 View Dashboard - (tbd)": "dashboard",
+        "📊 View Dashboard": "dashboard",
         "↩️ Exit": "exit",
         "⏭ Skip": "skip",
         "📝 Add Comment":"add_comment",
         "⏭ Skip Location": "skip_location",
         "📍 Share Location": "share_location",
     }
-
-# def send_message_text(chat_id, text):
-#     url = f"{TELEGRAM_URL}"
-#     payload = {
-#         "chat_id": chat_id,
-#         "text": text
-#     }
-#     response = requests.post(url, json=payload)
-#     return response.json()
 
 def send_message_markdown(chat_id, text, reply_markup=None, parse_mode="Markdown"):
     url = f"{TELEGRAM_URL}"
@@ -123,16 +114,14 @@ def webhook_widgets(request):
             user_sessions[chat_id]["otp"]=secret_otp
             token = encode_chat_id(str(chat_id))
             safe_token = quote(token, safe="")
-            url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}"
-            auto_login_url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}&otp={secret_otp}"
+            url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}"            
             logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
             if set_otp_for_user(chat_id,secret_otp):
                 logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
-                send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}", parse_mode="HTML")
-                send_message_markdown(chat_id, f"To auto-login, go to {auto_login_url} \n Warning: Do not share your OTP or auto-login link with anyone", parse_mode="HTML")
+                send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}", parse_mode="HTML")                
             else:
                 send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
-            # send_message_markdown(chat_id, "📊 Dashboard feature is under development. Stay tuned!")
+            
 
         # Handle road name
         elif user_sessions.get(chat_id, {}).get("step") == "road_name":
@@ -278,7 +267,7 @@ def rate_road(chat_id):
         "keyboard": [
             [{"text": "➕ Rate a Road"}],
             [{"text": "📝 View Past Ratings"}],
-            [{"text": "📊 View Dashboard - (tbd)"}],
+            [{"text": "📊 View Dashboard"}],
             [{"text": "↩️ Exit"}]
         ],
         "resize_keyboard": True
