@@ -1,66 +1,92 @@
-{% load static %}
+{% load static %} 
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Inshorts Style Card Feed</title>
-		<script src="{% static 'users_app/index.js' %}"></script>
-		<style>
-			body {
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>User Road Ratings</title>
+	<script src="{% static 'users_app/index.js' %}"></script>
+	<style>
+		body {
 			margin: 0;
 			font-family: Arial, sans-serif;
 			background: #f2f2f2;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			overflow-x: hidden;
-			}
+			padding: 20px;
+		}
 
-			.card {
-			width: 90%;
-			max-width: 500px;
+		h1 {
+			text-align: center;
+			margin-bottom: 20px;
+			color: #333;
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 20px;
+		}
+
+		.card {
 			background: #fff;
-			margin: 20px 0;
 			padding: 20px;
 			border-radius: 12px;
-			box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-			transition: transform 0.3s ease, box-shadow 0.3s ease;
-			}
+			box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+			transition: transform 0.2s ease, box-shadow 0.2s ease;
+		}
 
-			.card:hover {
+		.card:hover {
 			transform: translateY(-5px);
-			box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-			}
+			box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+		}
 
-			.card h3 {
+		.card h3 {
 			margin: 0 0 10px;
 			color: #333;
-			}
+		}
 
-			.card p {
+		.card p {
 			color: #555;
-			margin: 0 0 10px;
-			}
+			margin: 5px 0;
+		}
 
-			.rating {
-			margin-top: 10px;
+		.rating {
 			font-weight: bold;
 			color: #ff9800;
-			}
-		</style>
-	</head>
-	<body>
-		<!-- logout -->
-		<form method="post" action="{% url 'logout' %}">
-			{% csrf_token %}
-			<button type="submit">Logout</button>
-		</form>
-		<h1>User Road Ratings</h1>
+		}
+
+		.card a {
+			color: #3f51b5;
+			text-decoration: none;
+			font-weight: bold;
+		}
+
+		.card a:hover {
+			text-decoration: underline;
+		}
+
+		form {
+			text-align: right;
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+<body>
+	<!-- logout -->
+	<form method="post" action="{% url 'logout' %}">
+		{% csrf_token %}
+		<button type="submit">Logout</button>
+	</form>
+
+	<h1>User Road Ratings</h1>
+
+	<div class="grid">
 		{% for user_conversation in user_conversations %}
 			<div class="card">
 				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>
-				<p class="rating">Rating: {% for i in "12345"|slice:":user_conversation.fk_road_id.rating" %}⭐{% endfor %}</p>
+				<p class="rating">
+					Rating:
+					{% for i in "12345"|slice:":user_conversation.fk_road_id.rating" %}⭐{% endfor %}
+				</p>
 				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
 				<p>Rated at: {{ user_conversation.fk_road_id.created_at }}</p>				
 				<p>
@@ -74,6 +100,7 @@
 			</div>
 		{% empty %}
 			<p>No road ratings available.</p>
-		{% endfor %}		
-	</body>
+		{% endfor %}
+	</div>
+</body>
 </html>
