@@ -82,10 +82,9 @@
 	<div class="grid">
 		{% for user_conversation in user_conversations %}
 			<div class="card">
-				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>
+				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>				
 				<p class="rating">
-					Rating:
-					{% for i in "12345"|slice:":user_conversation.fk_road_id.rating" %}⭐{% endfor %}
+					Rating: {{ "⭐⭐⭐⭐⭐"|slice:":user_conversation.fk_road_id.rating" }}
 				</p>
 				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
 				<p>Rated at: {{ user_conversation.fk_road_id.created_at }}</p>				
