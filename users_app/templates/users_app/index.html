@@ -4,45 +4,62 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>User Dashboard</title>
+		<title>Inshorts Style Card Feed</title>
 		<script src="{% static 'users_app/index.js' %}"></script>
+		<style>
+			body {
+			margin: 0;
+			font-family: Arial, sans-serif;
+			background: #f2f2f2;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			overflow-x: hidden;
+			}
+
+			.card {
+			width: 90%;
+			max-width: 500px;
+			background: #fff;
+			margin: 20px 0;
+			padding: 20px;
+			border-radius: 12px;
+			box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+			}
+
+			.card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+			}
+
+			.card h3 {
+			margin: 0 0 10px;
+			color: #333;
+			}
+
+			.card p {
+			color: #555;
+			margin: 0 0 10px;
+			}
+
+			.rating {
+			margin-top: 10px;
+			font-weight: bold;
+			color: #ff9800;
+			}
+		</style>
 	</head>
 	<body>
-		<!-- logout -->
-		<form method="post" action="{% url 'logout' %}">
-			{% csrf_token %}
-			<button type="submit">Logout</button>
-		</form>
-		<h1>User Dashboard</h1>
-		<p>Welcome to the User Dashboard!</p>
-		<h2>Recent Road Ratings</h2>		
-		<table>
-			<thead>
-				<tr>
-					<th>Rating ID</th>
-					<th>Road Name</th>
-					<th>Date</th>
-					<th>Rated by</th>
-					<th>Location</th>
-					<th>Rating</th>
-					<th>Comment</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for user_conversation in user_conversations %}
-					<tr>
-						<td>{{ user_conversation.fk_road_id.id }}</td>
-						<td>{{ user_conversation.fk_road_id.road_name }}</td>
-						<td>{{ user_conversation.fk_road_id.created_at }}</td>
-						<td>{{ user_conversation.fk_road_id.rated_by }}</td>
-						<td>{{ user_conversation.fk_road_id.gps_coordinates }}
-							<a href="#" target="_blank" onclick="this.href=generateMapLink('{{ user_conversation.fk_road_id.gps_coordinates }}')">View on Map</a>
-						</td>						
-						<td>{{ user_conversation.fk_road_id.rating }}</td>
-						<td>{{ user_conversation.fk_road_id.comment }}</td>											
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>		
+		<h1>User Road Ratings</h1>
+		{% for user_conversation in user_conversations %}
+			<div class="card">
+				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>
+				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
+				<p class="rating">Rating: {% for i in "12345"|slice:":user_conversation.fk_road_id.rating" %}⭐{% endfor %}</p>
+			</div>
+		{% empty %}
+			<p>No road ratings available.</p>
+		{% endfor %}		
 	</body>
 </html>

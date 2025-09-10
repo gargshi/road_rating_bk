@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>User Dashboard</title>
+		<script src="{% static 'users_app/index.js' %}"></script>
+	</head>
+	<body>
+		<!-- logout -->
+		<form method="post" action="{% url 'logout' %}">
+			{% csrf_token %}
+			<button type="submit">Logout</button>
+		</form>
+		<h1>User Dashboard</h1>
+		<p>Welcome to the User Dashboard!</p>
+		<h2>Recent Road Ratings</h2>		
+		<table>
+			<thead>
+				<tr>
+					<th>Rating ID</th>
+					<th>Road Name</th>
+					<th>Date</th>
+					<th>Rated by</th>
+					<th>Location</th>
+					<th>Rating</th>
+					<th>Comment</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for user_conversation in user_conversations %}
+					<tr>
+						<td>{{ user_conversation.fk_road_id.id }}</td>
+						<td>{{ user_conversation.fk_road_id.road_name }}</td>
+						<td>{{ user_conversation.fk_road_id.created_at }}</td>
+						<td>{{ user_conversation.fk_road_id.rated_by }}</td>
+						<td>{{ user_conversation.fk_road_id.gps_coordinates }}
+							<a href="#" target="_blank" onclick="this.href=generateMapLink('{{ user_conversation.fk_road_id.gps_coordinates }}')">View on Map</a>
+						</td>						
+						<td>{{ user_conversation.fk_road_id.rating }}</td>
+						<td>{{ user_conversation.fk_road_id.comment }}</td>											
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>		
+	</body>
+</html>
