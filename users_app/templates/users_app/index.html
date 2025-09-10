@@ -51,6 +51,11 @@
 		</style>
 	</head>
 	<body>
+		<!-- logout -->
+		<form method="post" action="{% url 'logout' %}">
+			{% csrf_token %}
+			<button type="submit">Logout</button>
+		</form>
 		<h1>User Road Ratings</h1>
 		{% for user_conversation in user_conversations %}
 			<div class="card">
