@@ -55,9 +55,7 @@ def login_submit(request):
 		otp_status=False
 		if not password:
 			return render(request, 'users_app/login.html', {"error": "Missing OTP/Password. Please enter password manually."})
-		logger.info(f"Login view: OTP: {password}, username: {username}")
-		
-			
+		logger.info(f"Login view: OTP: {password}, username: {username}")			
 		
 		user = authenticate(request, username=username, password=password)
 		logger.info(f"Login user: {user}, username: {username}, password: {password}")
@@ -75,11 +73,11 @@ def login_submit(request):
 						logger.info(f"Logout view: Deactivated session for user {logged_in_user.chat_id}")		
 						logout(request)		
 						request.session.flush()
-					return render(request, 'users_app/login.html', {"error": "Only one session allowed. Please generate new OTP"})
+					return render(request, 'users_app/thanks.html', {"error": "Only one session allowed. Please generate new OTP"})
 				logging_in_user.otp_active=True				
 				logging_in_user.save()
 			except TeleUser.DoesNotExist:
-				return render(request, 'users_app/login.html', {"error": "User not found"})
+				return render(request, 'users_app/thanks.html', {"error": "User not found"})
 			login(request, user)  # sets session
 			return redirect('index')  # redirect by URL name
 		else:
