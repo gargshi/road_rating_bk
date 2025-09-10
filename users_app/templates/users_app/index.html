@@ -84,7 +84,7 @@
 			<div class="card">
 				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>				
 				<p class="rating">
-					Rating: {{ "⭐⭐⭐⭐⭐"|slice:":user_conversation.fk_road_id.rating" }}
+					Rating: {{ user_conversation.fk_road_id.rating }}⭐
 				</p>
 				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
 				<p>Rated at: {{ user_conversation.fk_road_id.created_at }}</p>				
