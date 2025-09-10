@@ -60,8 +60,17 @@
 		{% for user_conversation in user_conversations %}
 			<div class="card">
 				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>
-				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
 				<p class="rating">Rating: {% for i in "12345"|slice:":user_conversation.fk_road_id.rating" %}⭐{% endfor %}</p>
+				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
+				<p>Rated at: {{ user_conversation.fk_road_id.created_at }}</p>				
+				<p>
+					Location:
+					{% if user_conversation.fk_road_id.gps_coordinates %}
+						<a href="#" target="_blank" onclick="this.href=generateMapLink('{{ user_conversation.fk_road_id.gps_coordinates }}')">View on Map</a>
+					{% else %}
+						(No GPS coordinates available)
+					{% endif %}
+				</p>
 			</div>
 		{% empty %}
 			<p>No road ratings available.</p>
