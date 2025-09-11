@@ -59,7 +59,12 @@ class UserConversation(models.Model):
     
 class RoadMedia(models.Model):
     fk_road = models.ForeignKey(RoadRating, on_delete=models.CASCADE, related_name="media", null=True, blank=True)
-    file_url = models.FileField(upload_to='road_media/')
+    file_url = models.URLField()
+    media_type = models.CharField(
+        max_length=10,
+        choices=[("photo", "Photo"), ("video", "Video"), ("doc", "Document")],
+        default="photo"
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
