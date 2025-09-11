@@ -34,6 +34,7 @@ LOGIN_URL = "https://road-rating-bk.onrender.com/"
 COMMANDS = {
         "/start": "start",
         "START": "start",
+        "/exit": "exit",
         "✅ Yes, I want to rate more roads": "start",
         "❌ No, I don't want to rate more roads": "stop",
         "➕ Rate a Road": "rate",
@@ -207,6 +208,14 @@ def webhook_widgets(request):
         elif text == "skip_location":
             user_sessions[chat_id]["gps_coordinates"] = None
             user_sessions[chat_id]["step"] = "media"            
+            keyboard = {
+                "keyboard": [
+                    [{"text": "📎 Add Media"}],   
+                    [{"text": "⏭ Skip Media"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message_markdown(chat_id, "Would you like to add any supporting media (photos, videos)?", reply_markup=keyboard)
         
         elif text == "add_media":
             keyboard = {
@@ -215,7 +224,7 @@ def webhook_widgets(request):
                 ],
                 "resize_keyboard": True
             }
-            send_message_markdown(chat_id, "📎 Please send any supporting media (photos, videos) you want to attach to this rating.", reply_markup=keyboard)
+            send_message_markdown(chat_id, "📎 Please upload any supporting media (photos, videos) you want to attach to this rating.", reply_markup=keyboard)
         
         elif text in "skip_media":
             save_rating(chat_id)
