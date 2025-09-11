@@ -90,8 +90,12 @@ def webhook_widgets(request):
         if not road_id:
             send_message_markdown(chat_id, "⚠️ Please start a rating session first by typing /start and following the prompts.")
             return JsonResponse({"ok": False})
-        handle_media_upload(message, chat_id, session, road_id)
-        return JsonResponse({"ok": True})
+        if handle_media_upload(message, chat_id, session, road_id):
+            send_message_markdown(chat_id, f"📎 Media added")
+        else:
+            send_message_markdown(chat_id, "⚠️ Could not upload media. Please try again from dashboard. Thanks.")
+        save_rating(chat_id)
+        # return JsonResponse({"ok": True})
     
 
     if "text" in message:
@@ -258,10 +262,6 @@ def webhook_widgets(request):
         create_road_rating_and_conversation(chat_id)
         # save_rating(chat_id)
         # del user_sessions[chat_id]
-    
-    elif text in ["exit", "cancel"]:
-        if chat_id in user_sessions:
-            del user_sessions[chat_id]
 
     return JsonResponse({"ok": True})
 
@@ -451,8 +451,10 @@ def handle_media_upload(message, chat_id, session, road_id):
         road_media.save()
         session['road_media_id']=road_media.id
         logger.info(f"Saved RoadMedia {road_media.id} for RoadRating {road_id}")
-        send_message_markdown(chat_id, f"📎 Media added")        
+        return True
+        send_message_markdown(chat_id, f"📎 Media added")       
 
     except Exception as e:
         logger.exception("Media upload failed")
+        return False
         send_message_markdown(chat_id, "⚠️ Could not upload media. Try again.")
