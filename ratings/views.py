@@ -207,7 +207,8 @@ def webhook_widgets(request):
         # Skip location
         elif text == "skip_location":
             user_sessions[chat_id]["gps_coordinates"] = None
-            user_sessions[chat_id]["step"] = "media"            
+            user_sessions[chat_id]["step"] = "media"
+            create_road_rating_and_conversation(chat_id)         
             add_media_prompt(chat_id)
         
         elif text == "add_media":
