@@ -56,3 +56,11 @@ class UserConversation(models.Model):
 
     def __str__(self):
         return f"{self.fk_chat_id} - {self.fk_road_id}"
+    
+class RoadMedia(models.Model):
+    fk_road = models.ForeignKey(RoadRating, on_delete=models.CASCADE, related_name="media", null=True, blank=True)
+    file_url = models.FileField(upload_to='road_media/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Media for {self.fk_road.road_name} - {self.media_type}"
