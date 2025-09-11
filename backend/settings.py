@@ -163,3 +163,6 @@ LOGGING = {
         "level": "DEBUG",
     },
 }
+
+AWS_STORAGE_BUCKET_NAME = "media-storage-bkt"
+AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")

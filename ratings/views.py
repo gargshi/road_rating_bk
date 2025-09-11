@@ -1,6 +1,10 @@
+import mimetypes
+import boto3
+from django.conf import settings
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import generics
-from .models import RoadRating, UserConversation, TeleUser, TeleUserStats
+from .models import RoadMedia, RoadRating, UserConversation, TeleUser, TeleUserStats
 from .serializers import RoadRatingSerializer, UserConversationSerializer
 from django.http import JsonResponse
 import requests, json
@@ -40,6 +44,8 @@ COMMANDS = {
         "📝 Add Comment":"add_comment",
         "⏭ Skip Location": "skip_location",
         "📍 Share Location": "share_location",
+        "📎 Add Media": "add_media",
+        "⏭ Skip Media": "skip_media",        
     }
 
 def send_message_markdown(chat_id, text, reply_markup=None, parse_mode="Markdown"):
@@ -75,6 +81,17 @@ def webhook_widgets(request):
 
     if not chat_id:
         return JsonResponse({"ok": False})
+    
+    # Handle media (photo, video, document)
+    if "photo" in message or "video" in message or "document" in message:
+        session = user_sessions.get(chat_id, {})
+        road_id = session.get("road_id")
+        if not road_id:
+            send_message_markdown(chat_id, "⚠️ Please start a rating session first by typing /start and following the prompts.")
+            return JsonResponse({"ok": False})
+        handle_media_upload(message, chat_id, session, road_id)
+        return JsonResponse({"ok": True})
+    
 
     if "text" in message:
         text = message["text"]
@@ -188,8 +205,16 @@ def webhook_widgets(request):
 
         # Skip location
         elif text == "skip_location":
+            user_sessions[chat_id]["gps_coordinates"] = None
+            user_sessions[chat_id]["step"] = "media"            
+        
+        elif text == "add_media":            
+            send_message_markdown(chat_id, "📎 Please send any supporting media (photos, videos) you want to attach to this rating.")
+        
+        elif text in "skip_media":
             save_rating(chat_id)
             del user_sessions[chat_id]
+
 
         # View past ratings
         elif text in ["past_ratings"]:
@@ -323,3 +348,82 @@ def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, user
         logger.info(f"Created new TeleUser: {tele_user} (linked to User: {user.username})")
 
     return tele_user
+
+
+def get_presigned_url(request, filename):
+    s3 = boto3.client("s3", region_name="ap-south-1")
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
+
+    url = s3.generate_presigned_url(
+        "put_object",
+        Params={"Bucket": bucket, "Key": f"user_uploads/{filename}"},
+        ExpiresIn=300  # 5 mins
+    )
+    return JsonResponse({
+        "upload_url": url,
+        "file_url": f"https://{bucket}.s3.amazonaws.com/user_uploads/{filename}"
+    })
+
+
+
+def handle_media_upload(message, chat_id, session, road_id):
+    s3 = boto3.client("s3", region_name=settings.AWS_REGION)
+    try:
+        file_id = None
+        orig_filename = None
+        content_type = None
+        media_type = "doc"
+
+        if "photo" in message:
+            file_id = message["photo"][-1]["file_id"]
+            orig_filename = f"{file_id}.jpg"
+            content_type = "image/jpeg"
+            media_type = "photo"
+        elif "video" in message:
+            file_id = message["video"]["file_id"]
+            orig_filename = f"{file_id}.mp4"
+            content_type = message["video"].get("mime_type", "video/mp4")
+            media_type = "video"
+        elif "document" in message:
+            file_id = message["document"]["file_id"]
+            orig_filename = message["document"].get("file_name") or f"{file_id}"
+            content_type = message["document"].get("mime_type") or mimetypes.guess_type(orig_filename)[0] or "application/octet-stream"
+            media_type = "doc"
+
+        # Get Telegram file URL
+        getfile_res = requests.get(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getFile?file_id={file_id}")
+        getfile_res.raise_for_status()
+        file_path = getfile_res.json()["result"]["file_path"]
+        tg_file_url = f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}"
+
+        # Download from Telegram
+        r = requests.get(tg_file_url, stream=True)
+        r.raise_for_status()
+
+        road = RoadRating.objects.get(id=road_id)
+        road_media = RoadMedia.objects.create(fk_road=road)
+
+        # Generate uuid + extension
+        ext = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
+        
+        # s3_key = f"user_uploads/{session.get('road_id','pending')}/{unique_id}{ext}"
+        s3_key = f"road_media/{road_media.id}.jpg"
+
+        # Upload to S3
+        s3.upload_fileobj(
+            r.raw,
+            settings.AWS_STORAGE_BUCKET_NAME,
+            s3_key,
+            ExtraArgs={"ContentType": content_type}
+        )
+
+        # Save media record
+        road_media.file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
+        road_media.media_type = media_type
+        road_media.save()
+        send_message_markdown(chat_id, f"📎 Media added")
+        
+
+    except Exception as e:
+        logger.exception("Media upload failed")
+        send_message_markdown(chat_id, "⚠️ Could not upload media. Try again.")
