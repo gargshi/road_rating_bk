@@ -208,8 +208,14 @@ def webhook_widgets(request):
             user_sessions[chat_id]["gps_coordinates"] = None
             user_sessions[chat_id]["step"] = "media"            
         
-        elif text == "add_media":            
-            send_message_markdown(chat_id, "📎 Please send any supporting media (photos, videos) you want to attach to this rating.")
+        elif text == "add_media":
+            keyboard = {
+                "keyboard": [                    
+                    [{"text": "⏭ Skip Media"}]
+                ],
+                "resize_keyboard": True
+            }
+            send_message_markdown(chat_id, "📎 Please send any supporting media (photos, videos) you want to attach to this rating.", reply_markup=keyboard)
         
         elif text in "skip_media":
             save_rating(chat_id)
@@ -294,7 +300,7 @@ def rate_road(chat_id):
         "keyboard": [
             [{"text": "➕ Rate a Road"}],
             [{"text": "📝 View Past Ratings"}],
-            [{"text": "📊 View Dashboard"}],
+            [{"text": "📊 View Dashboard"}],            
             [{"text": "↩️ Exit"}]
         ],
         "resize_keyboard": True
