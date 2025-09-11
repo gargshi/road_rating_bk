@@ -208,14 +208,7 @@ def webhook_widgets(request):
         elif text == "skip_location":
             user_sessions[chat_id]["gps_coordinates"] = None
             user_sessions[chat_id]["step"] = "media"            
-            keyboard = {
-                "keyboard": [
-                    [{"text": "📎 Add Media"}],   
-                    [{"text": "⏭ Skip Media"}]
-                ],
-                "resize_keyboard": True
-            }
-            send_message_markdown(chat_id, "Would you like to add any supporting media (photos, videos)?", reply_markup=keyboard)
+            add_media_prompt(chat_id)
         
         elif text == "add_media":
             keyboard = {
@@ -260,34 +253,53 @@ def webhook_widgets(request):
         lon = message["location"]["longitude"]
         gps = f"{lat},{lon}"
         user_sessions[chat_id]["gps_coordinates"] = gps
-        save_rating(chat_id)
-        del user_sessions[chat_id]        
+        user_sessions[chat_id]["step"] = "media"
+        create_road_rating_and_conversation(chat_id)
+        # save_rating(chat_id)
+        # del user_sessions[chat_id]
+    
+    elif text in ["exit", "cancel"]:
+        if chat_id in user_sessions:
+            del user_sessions[chat_id]
 
     return JsonResponse({"ok": True})
 
 
-def save_rating(chat_id):
-    """Save rating to DB"""
+def create_road_rating_and_conversation(chat_id):
+    """Create road rating and conversation"""
     session = user_sessions.get(chat_id, {})
     if not session:
         send_message_markdown(chat_id, "⚠️ Session expired or invalid. Please start again with /start")
         return
-    logger.info(f"💾 Saving rating for chat_id {chat_id}: {session}")
+    logger.info(f"💾 Creating road rating and conversation for chat_id {chat_id}: {session}")
     feedback = RoadRating.objects.create(
         road_name=session.get("road_name"),
         rating=session.get("rating"),
         comment=session.get("comment"),
         gps_coordinates=session.get("gps_coordinates"),        
-    )
-    # t_user=TeleUser.objects.get_or_create(chat_id=chat_id)
-    # t_user=create_teleuser_if_not_exists(chat_id=chat_id)
+    )    
     t_user=session.get("tuser") or create_teleuser_if_not_exists(chat_id=chat_id)
     UserConversation.objects.create(
         fk_chat_id=t_user,       
         fk_road_id=feedback,
     )
+    logger.info(f"Created RoadRating {feedback.id} and UserConversation for chat_id {chat_id}")
+    session["road_id"]=feedback.id
+    add_media_prompt(chat_id)
+    
+def save_rating(chat_id):
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
     want_to_continue(chat_id)
+
+def add_media_prompt(chat_id):
+    keyboard = {
+                "keyboard": [
+                    [{"text": "📎 Add Media"}],   
+                    [{"text": "⏭ Skip Media"}]
+                ],
+                "resize_keyboard": True
+            }
+    send_message_markdown(chat_id, "Would you like to add any supporting media (photos, videos)?", reply_markup=keyboard)
 
 def set_otp_for_user(chat_id,otp):
     try:
@@ -436,8 +448,9 @@ def handle_media_upload(message, chat_id, session, road_id):
         road_media.file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
         road_media.media_type = media_type
         road_media.save()
-        send_message_markdown(chat_id, f"📎 Media added")
-        
+        session['road_media_id']=road_media.id
+        logger.info(f"Saved RoadMedia {road_media.id} for RoadRating {road_id}")
+        send_message_markdown(chat_id, f"📎 Media added")        
 
     except Exception as e:
         logger.exception("Media upload failed")
