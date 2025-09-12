@@ -2,103 +2,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>User Road Ratings</title>
-	<script src="{% static 'users_app/index.js' %}"></script>
-	<style>
-		body {
-			margin: 0;
-			font-family: Arial, sans-serif;
-			background: #f2f2f2;
-			padding: 20px;
-		}
-
-		h1 {
-			text-align: center;
-			margin-bottom: 20px;
-			color: #333;
-		}
-
-		.grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-			gap: 20px;
-		}
-
-		.card {
-			background: #fff;
-			padding: 20px;
-			border-radius: 12px;
-			box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-			transition: transform 0.2s ease, box-shadow 0.2s ease;
-		}
-
-		.card:hover {
-			transform: translateY(-5px);
-			box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-		}
-
-		.card h3 {
-			margin: 0 0 10px;
-			color: #333;
-		}
-
-		.card p {
-			color: #555;
-			margin: 5px 0;
-		}
-
-		.rating {
-			font-weight: bold;
-			color: #ff9800;
-		}
-
-		.card a {
-			color: #3f51b5;
-			text-decoration: none;
-			font-weight: bold;
-		}
-
-		.card a:hover {
-			text-decoration: underline;
-		}
-
-		form {
-			text-align: right;
-			margin-bottom: 10px;
-		}
-	</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Road Ratings</title>
+  <script src="{% static 'users_app/index.js' %}"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-	<!-- logout -->
-	<form method="post" action="{% url 'logout' %}">
-		{% csrf_token %}
-		<button type="submit">Logout</button>
-	</form>
+<body class="bg-gray-100 min-h-screen p-6">
 
-	<h1>User Road Ratings</h1>
+  <!-- Logout -->
+  <form method="post" action="{% url 'logout' %}" class="flex justify-end mb-4">
+    {% csrf_token %}
+    <button type="submit" 
+            class="px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 transition">
+      Logout
+    </button>
+  </form>
 
-	<div class="grid">
-		{% for user_conversation in user_conversations %}
-			<div class="card">
-				<h3>{{ user_conversation.fk_road_id.road_name }}</h3>				
-				<p class="rating">
-					Rating: {{ user_conversation.fk_road_id.rating }}⭐
-				</p>
-				<p>Comment: {{ user_conversation.fk_road_id.comment }}</p>
-				<p>Rated at: {{ user_conversation.fk_road_id.created_at }}</p>				
-				<p>
-					{% if user_conversation.fk_road_id.gps_coordinates %}
-						<a href="#" target="_blank" onclick="this.href=generateMapLink('{{ user_conversation.fk_road_id.gps_coordinates }}')">View on Map</a>
-					{% else %}
-						(No GPS coordinates available)
-					{% endif %}
-				</p>
-			</div>
-		{% empty %}
-			<p>No road ratings available.</p>
-		{% endfor %}
-	</div>
+  <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">User Road Ratings</h1>
+
+  <!-- Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for user_conversation in user_conversations %}
+      <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
+           onclick="openModal('{{ user_conversation.fk_road_id.road_name }}',
+                              '{{ user_conversation.fk_road_id.rating }}',
+                              '{{ user_conversation.fk_road_id.comment }}',
+                              '{{ user_conversation.fk_road_id.created_at }}',
+                              '{{ user_conversation.fk_road_id.gps_coordinates }}',
+                              [{% for pic in user_conversation.fk_road_id.roadmedia_set.all %}'{{ pic.file.url }}',{% endfor %}])">
+        
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">
+          {{ user_conversation.fk_road_id.road_name }}
+        </h3>
+        
+        <p class="text-yellow-500 font-semibold mb-1">
+          ⭐ Rating: {{ user_conversation.fk_road_id.rating }}
+        </p>
+        
+        <p class="text-gray-600 mb-2 truncate">
+          <span class="font-medium">Comment:</span> {{ user_conversation.fk_road_id.comment }}
+        </p>
+        
+        <p class="text-sm text-gray-500 mb-3">
+          Rated at: {{ user_conversation.fk_road_id.created_at }}
+        </p>
+      </div>
+    {% empty %}
+      <p class="col-span-full text-center text-gray-500">No road ratings available.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Modal -->
+  <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative">
+      
+      <!-- Close Button -->
+      <button onclick="closeModal()" 
+              class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+      
+      <!-- Modal Content -->
+      <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+      <p id="modalRating" class="text-yellow-500 font-semibold mb-1"></p>
+      <p id="modalComment" class="text-gray-600 mb-2"></p>
+      <p id="modalDate" class="text-sm text-gray-500 mb-3"></p>
+      <a id="modalMap" href="#" target="_blank" class="text-blue-600 hover:underline mb-4 inline-block"></a>
+
+      <!-- Pics Grid -->
+      <div id="modalPics" class="grid grid-cols-2 gap-4"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    function openModal(name, rating, comment, date, gps, pics) {
+      document.getElementById('modalTitle').textContent = name;
+      document.getElementById('modalRating').textContent = "⭐ Rating: " + rating;
+      document.getElementById('modalComment').innerHTML = "<b>Comment:</b> " + comment;
+      document.getElementById('modalDate').textContent = "Rated at: " + date;
+
+      let mapLink = document.getElementById('modalMap');
+      if (gps && gps !== "None") {
+        mapLink.href = generateMapLink(gps);
+        mapLink.textContent = "📍 View on Map";
+      } else {
+        mapLink.textContent = "No GPS coordinates available";
+        mapLink.href = "#";
+      }
+
+      let picsContainer = document.getElementById('modalPics');
+      picsContainer.innerHTML = "";
+      if (pics.length > 0) {
+        pics.forEach(url => {
+          let img = document.createElement("img");
+          img.src = url;
+          img.className = "rounded-lg shadow";
+          picsContainer.appendChild(img);
+        });
+      } else {
+        picsContainer.innerHTML = "<p class='text-gray-400 italic'>No images uploaded.</p>";
+      }
+
+      document.getElementById('detailsModal').classList.remove("hidden");
+      document.getElementById('detailsModal').classList.add("flex");
+    }
+
+    function closeModal() {
+      document.getElementById('detailsModal').classList.add("hidden");
+      document.getElementById('detailsModal').classList.remove("flex");
+    }
+  </script>
+
 </body>
 </html>
