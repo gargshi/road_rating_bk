@@ -37,7 +37,7 @@
   <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">User Road Ratings</h1>
 
   <!-- Cards Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for user_conversation in user_conversations %}
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
            onclick="openModal('{{ user_conversation.fk_road_id.road_name }}',
@@ -66,7 +66,65 @@
     {% empty %}
       <p class="col-span-full text-center text-gray-500 dark:text-gray-400">No road ratings available.</p>
     {% endfor %}
-  </div>
+  </div> -->
+  	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+		{% for user_conversation in page_obj %}
+			<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
+				onclick="openModal('{{ user_conversation.fk_road_id.road_name }}',
+									'{{ user_conversation.fk_road_id.rating }}',
+									'{{ user_conversation.fk_road_id.comment }}',
+									'{{ user_conversation.fk_road_id.created_at }}',
+									'{{ user_conversation.fk_road_id.gps_coordinates }}',
+									[{% for pic in user_conversation.fk_road_id.roadmedia_set.all %}'{{ pic.file.url }}',{% endfor %}])">
+			
+			<h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+				{{ user_conversation.fk_road_id.road_name }}
+			</h3>
+			
+			<p class="text-yellow-400 font-semibold mb-1">
+				⭐ Rating: {{ user_conversation.fk_road_id.rating }}
+			</p>
+			
+			<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
+				<span class="font-medium">Comment:</span> {{ user_conversation.fk_road_id.comment }}
+			</p>
+			
+			<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+				Rated at: {{ user_conversation.fk_road_id.created_at }}
+			</p>
+			</div>
+		{% empty %}
+			<p class="col-span-full text-center text-gray-500 dark:text-gray-400">No road ratings available.</p>
+		{% endfor %}
+	</div>
+
+	<!-- Pagination -->
+	<div class="flex justify-center mt-8 space-x-2">
+		{% if page_obj.has_previous %}
+			<a href="?page={{ page_obj.previous_page_number }}" 
+			class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+			Prev
+			</a>
+		{% endif %}
+
+		{% for num in page_obj.paginator.page_range %}
+			{% if page_obj.number == num %}
+			<span class="px-3 py-1 bg-blue-600 text-white rounded">{{ num }}</span>
+			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+			<a href="?page={{ num }}" 
+				class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+				{{ num }}
+			</a>
+			{% endif %}
+		{% endfor %}
+
+		{% if page_obj.has_next %}
+			<a href="?page={{ page_obj.next_page_number }}" 
+			class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+			Next
+			</a>
+		{% endif %}
+	</div>
 
   <!-- Modal -->
   <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">

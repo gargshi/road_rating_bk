@@ -6,6 +6,7 @@ import logging
 from utilities.cryptography import decode_chat_id
 from urllib.parse import unquote
 from ratings.models import TeleUser
+from django.core.paginator import Paginator
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -23,6 +24,9 @@ def index(request):
 	logger.info(f"Index view: Current session chat_id: {login_user_id}, Authenticated user: {request.user}")
 	if login_user_id:
 		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')[:10]
+		paginator=Paginator(user_conversations,10)
+		page_number=request.GET.get('page')
+		page_obj=paginator.get_page(page_number)
 		# all_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=login_user_id).order_by('-created_at')[:10]
 		logger.info(f"Index view: fetched {len(user_conversations)} conversations and {len(all_ratings)} ratings for user {login_user_id}")
 	else:
@@ -30,7 +34,7 @@ def index(request):
 		logout(request)
 	# all_ratings = RoadRating.objects.all().order_by('-created_at')[:10]
 
-	context = {"ratings": all_ratings, "user_conversations": user_conversations}
+	context = {"ratings": all_ratings, "user_conversations": user_conversations, "page_obj": page_obj}
 	return render(request, 'users_app/index.html', context)
 
 def login_view(request):
