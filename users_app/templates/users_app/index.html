@@ -1,30 +1,45 @@
 {% load static %} 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Road Ratings</title>
   <script src="{% static 'users_app/index.js' %}"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Enable Tailwind dark mode via class strategy
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
 </head>
-<body class="bg-gray-100 min-h-screen p-6">
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen p-6 transition-colors duration-300">
 
-  <!-- Logout -->
-  <form method="post" action="{% url 'logout' %}" class="flex justify-end mb-4">
-    {% csrf_token %}
-    <button type="submit" 
-            class="px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 transition">
-      Logout
+  <!-- Top Bar -->
+  <div class="flex justify-between items-center mb-6">
+    <!-- Logout -->
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" 
+              class="px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 transition">
+        Logout
+      </button>
+    </form>
+
+    <!-- Dark Mode Toggle -->
+    <button onclick="toggleDarkMode()" 
+            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+      🌙 Toggle Dark Mode
     </button>
-  </form>
+  </div>
 
-  <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">User Road Ratings</h1>
+  <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">User Road Ratings</h1>
 
   <!-- Cards Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for user_conversation in user_conversations %}
-      <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
            onclick="openModal('{{ user_conversation.fk_road_id.road_name }}',
                               '{{ user_conversation.fk_road_id.rating }}',
                               '{{ user_conversation.fk_road_id.comment }}',
@@ -32,41 +47,41 @@
                               '{{ user_conversation.fk_road_id.gps_coordinates }}',
                               [{% for pic in user_conversation.fk_road_id.roadmedia_set.all %}'{{ pic.file.url }}',{% endfor %}])">
         
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
           {{ user_conversation.fk_road_id.road_name }}
         </h3>
         
-        <p class="text-yellow-500 font-semibold mb-1">
+        <p class="text-yellow-400 font-semibold mb-1">
           ⭐ Rating: {{ user_conversation.fk_road_id.rating }}
         </p>
         
-        <p class="text-gray-600 mb-2 truncate">
+        <p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
           <span class="font-medium">Comment:</span> {{ user_conversation.fk_road_id.comment }}
         </p>
         
-        <p class="text-sm text-gray-500 mb-3">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
           Rated at: {{ user_conversation.fk_road_id.created_at }}
         </p>
       </div>
     {% empty %}
-      <p class="col-span-full text-center text-gray-500">No road ratings available.</p>
+      <p class="col-span-full text-center text-gray-500 dark:text-gray-400">No road ratings available.</p>
     {% endfor %}
   </div>
 
   <!-- Modal -->
   <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative transition-colors duration-300">
       
       <!-- Close Button -->
       <button onclick="closeModal()" 
-              class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+              class="absolute top-2 right-2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 text-xl font-bold">&times;</button>
       
       <!-- Modal Content -->
-      <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h2>
-      <p id="modalRating" class="text-yellow-500 font-semibold mb-1"></p>
-      <p id="modalComment" class="text-gray-600 mb-2"></p>
-      <p id="modalDate" class="text-sm text-gray-500 mb-3"></p>
-      <a id="modalMap" href="#" target="_blank" class="text-blue-600 hover:underline mb-4 inline-block"></a>
+      <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2"></h2>
+      <p id="modalRating" class="text-yellow-400 font-semibold mb-1"></p>
+      <p id="modalComment" class="text-gray-600 dark:text-gray-300 mb-2"></p>
+      <p id="modalDate" class="text-sm text-gray-500 dark:text-gray-400 mb-3"></p>
+      <a id="modalMap" href="#" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"></a>
 
       <!-- Pics Grid -->
       <div id="modalPics" class="grid grid-cols-2 gap-4"></div>
@@ -75,6 +90,7 @@
 
   <!-- Scripts -->
   <script>
+    // Modal functions
     function openModal(name, rating, comment, date, gps, pics) {
       document.getElementById('modalTitle').textContent = name;
       document.getElementById('modalRating').textContent = "⭐ Rating: " + rating;
@@ -111,6 +127,29 @@
       document.getElementById('detailsModal').classList.add("hidden");
       document.getElementById('detailsModal').classList.remove("flex");
     }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      // Save preference in localStorage
+      if (document.documentElement.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    // Load saved preference
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Close modal with ESC
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeModal();
+    });
   </script>
 
 </body>
