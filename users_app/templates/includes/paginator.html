@@ -33,9 +33,9 @@
 				</a>
 			{% endif %}
 		{% elif num == 2 and page_obj.number > 4 %}
-			<span class="px-3 py-1">…</span><!-- ellipsis for skipped middle -->
+			<span class="px-3 py-1">...</span><!-- ellipsis for skipped middle -->
 		{% elif num == page_obj.paginator.num_pages|add:'-1' and page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
-			<span class="px-3 py-1">…</span><!-- ellipsis for skipped middle -->
+			<span class="px-3 py-1">...</span><!-- ellipsis for skipped middle -->
 		{% endif %}
 	{% endfor %}
 
