@@ -64,9 +64,9 @@ def send_message_markdown(chat_id, text, reply_markup=None, parse_mode="Markdown
     # return response.json()
 
 
-def add_record(url, data):
-    response = requests.post(url, json=data)
-    return response.json()
+# def add_record(url, data):
+#     response = requests.post(url, json=data)
+#     return response.json()
 
 user_sessions = {}
 @csrf_exempt
@@ -111,18 +111,7 @@ def webhook_widgets(request):
             rate_road(chat_id)
         
         elif text in ["stop","exit"]:
-            send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start",
-                                  reply_markup={
-                                    "keyboard": [
-                                        [
-                                            {"text": "START"},
-                                        ]
-                                    ],
-                                    "resize_keyboard": True
-                                }
-                            )
-            if chat_id in user_sessions:
-                del user_sessions[chat_id]
+            exiting_program(chat_id)
             return JsonResponse({"ok": True})
 
         # Start rating
@@ -134,44 +123,20 @@ def webhook_widgets(request):
         elif text in ["dashboard"]:
             user_sessions[chat_id] = {"step": "dashboard"}
             # enable_login(chat_id, enable=False)
-            secret_otp=random.randint(100000,999999)
-            user_sessions[chat_id]["otp"]=secret_otp
-            token = encode_chat_id(str(chat_id))
-            safe_token = quote(token, safe="")
-            url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}"            
-            logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
-            if set_otp_for_user(chat_id,secret_otp):
-                logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
-                send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}", parse_mode="HTML")                
-            else:
-                send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
-            
+            show_dashboard_otp_logic(chat_id)            
 
         # Handle road name
         elif user_sessions.get(chat_id, {}).get("step") == "road_name":
             user_sessions[chat_id]["road_name"] = text
             user_sessions[chat_id]["step"] = "rating"
-            keyboard = {
-                "keyboard": [
-                    [{"text": "⭐ 1"}, {"text": "⭐ 2"}],
-                    [{"text": "⭐ 3"}, {"text": "⭐ 4"}, {"text": "⭐ 5"}]
-                ],
-                "resize_keyboard": True
-            }
-            send_message_markdown(chat_id, "⭐ Please rate the road (1–5):", reply_markup=keyboard)
+            add_rating_prompt(chat_id)
 
         # Handle rating
         elif user_sessions.get(chat_id, {}).get("step") == "rating" and text.startswith("⭐"):
             rating_value = int(text.split()[1])
             user_sessions[chat_id]["rating"] = rating_value
             user_sessions[chat_id]["step"] = "comment"
-            keyboard = {
-                "keyboard": [
-                    [{"text": "📝 Add Comment"}, {"text": "⏭ Skip"}]
-                ],
-                "resize_keyboard": True
-            }
-            send_message_markdown(chat_id, "Would you like to add a comment?", reply_markup=keyboard)
+            add_comment_prompt(chat_id)
 
         # Handle comment step
         elif user_sessions.get(chat_id, {}).get("step") == "comment":
@@ -186,27 +151,13 @@ def webhook_widgets(request):
 
             # Next step → location
             user_sessions[chat_id]["step"] = "location"
-            keyboard = {
-                "keyboard": [
-                    [{"text": "📍 Share Location", "request_location": True}],
-                    [{"text": "⏭ Skip Location"}]
-                ],
-                "resize_keyboard": True
-            }
-            send_message_markdown(chat_id, "📍 Please share the location:", reply_markup=keyboard)
+            add_location_prompt(chat_id)
 
         # Handle comment text input
         elif user_sessions.get(chat_id, {}).get("step") == "comment_text":
             user_sessions[chat_id]["comment"] = text
             user_sessions[chat_id]["step"] = "location"
-            keyboard = {
-                "keyboard": [
-                    [{"text": "📍 Share Location", "request_location": True}],
-                    [{"text": "⏭ Skip Location"}]
-                ],
-                "resize_keyboard": True
-            }
-            send_message_markdown(chat_id, "📍 Please share the location:", reply_markup=keyboard)
+            add_location_prompt(chat_id)
 
         # Skip location
         elif text == "skip_location":
@@ -231,23 +182,7 @@ def webhook_widgets(request):
 
         # View past ratings
         elif text in ["past_ratings"]:
-            past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
-            logger.info(f"Found {past_ratings.count()} past ratings for chat_id {chat_id}")
-            if past_ratings.exists():
-                send_message_markdown(chat_id, "📝 Your past ratings:")
-                for rating in past_ratings:
-                    logger.info(f"Found rating: {rating}")
-                    maps_link = f"https://www.google.com/maps?q={rating.gps_coordinates}" if rating.gps_coordinates else "—"
-                    send_message_markdown(
-                        chat_id,
-                        f"Road: {escape_markdown(rating.road_name)}\n"
-                        f"Rating: {rating.rating}\n"
-                        f"Comment: {escape_markdown(rating.comment) or '—'}\n"
-                        f"Coordinates: {maps_link}\n"
-                        f"Date: {rating.created_at.strftime('%Y-%m-%d %H:%M')}\n"
-                    )
-            else:
-                send_message_markdown(chat_id, "ℹ️ You haven’t rated any roads yet.")
+            past_rating(chat_id)
         
         else:
             send_message_markdown(chat_id, "⚠️ Unrecognized command. Please use the buttons to navigate. To start a new rating, type /start")            
@@ -264,6 +199,80 @@ def webhook_widgets(request):
         # del user_sessions[chat_id]
 
     return JsonResponse({"ok": True})
+
+def exiting_program(chat_id):
+    keyboard = {"keyboard": 
+                        [
+                            [
+                                {"text": "START"},
+                            ]
+                        ],
+                        "resize_keyboard": True
+                    }
+    send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start", reply_markup=keyboard)
+    if chat_id in user_sessions:
+        del user_sessions[chat_id]
+
+def show_dashboard_otp_logic(chat_id):
+    secret_otp=random.randint(100000,999999)
+    user_sessions[chat_id]["otp"]=secret_otp
+    token = encode_chat_id(str(chat_id))
+    safe_token = quote(token, safe="")
+    url = f"https://road-rating-bk.onrender.com/login?uid={safe_token}"            
+    logger.info(f"Generated OTP {secret_otp} and token {token} for chat_id {chat_id}")         
+    if set_otp_for_user(chat_id,secret_otp):
+        logger.info(f"sending message to chat_id {chat_id} with token {token} and otp {secret_otp}")
+        send_message_markdown(chat_id, f"To access the dashboard, go to {url} \n Password: {secret_otp}", parse_mode="HTML")                
+    else:
+        send_message_markdown(chat_id, "⚠️ Unable to set OTP for your user. Please contact support.")
+
+def add_rating_prompt(chat_id):
+    keyboard = {
+                "keyboard": [
+                    [{"text": "⭐ 1"}, {"text": "⭐ 2"}],
+                    [{"text": "⭐ 3"}, {"text": "⭐ 4"}, {"text": "⭐ 5"}]
+                ],
+                "resize_keyboard": True
+            }
+    send_message_markdown(chat_id, "⭐ Please rate the road (1–5):", reply_markup=keyboard)
+
+def add_comment_prompt(chat_id):
+    keyboard = {
+                "keyboard": [
+                    [{"text": "📝 Add Comment"}, {"text": "⏭ Skip"}]
+                ],
+                "resize_keyboard": True
+            }
+    send_message_markdown(chat_id, "Would you like to add a comment?", reply_markup=keyboard)
+
+def add_location_prompt(chat_id):
+    keyboard = {
+                "keyboard": [
+                    [{"text": "📍 Share Location", "request_location": True}],
+                    [{"text": "⏭ Skip Location"}]
+                ],
+                "resize_keyboard": True
+            }
+    send_message_markdown(chat_id, "📍 Please share the location:", reply_markup=keyboard)
+
+def past_rating(chat_id):
+    past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
+    logger.info(f"Found {past_ratings.count()} past ratings for chat_id {chat_id}")
+    if past_ratings.exists():
+        send_message_markdown(chat_id, "📝 Your past ratings:")
+        for rating in past_ratings:
+            logger.info(f"Found rating: {rating}")
+            maps_link = f"https://www.google.com/maps?q={rating.gps_coordinates}" if rating.gps_coordinates else "—"
+            send_message_markdown(
+                        chat_id,
+                        f"Road: {escape_markdown(rating.road_name)}\n"
+                        f"Rating: {rating.rating}\n"
+                        f"Comment: {escape_markdown(rating.comment) or '—'}\n"
+                        f"Coordinates: {maps_link}\n"
+                        f"Date: {rating.created_at.strftime('%Y-%m-%d %H:%M')}\n"
+                    )
+    else:
+        send_message_markdown(chat_id, "ℹ️ You haven’t rated any roads yet.")
 
 
 def create_road_rating_and_conversation(chat_id):
