@@ -1,5 +1,10 @@
 <!-- Pagination -->
 <div class="flex justify-center mt-8 space-x-2">
+	<a href="?page=1"
+		class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+		First
+	</a>
+	|
 	{% if page_obj.has_previous %}
 		<a href="?page={{ page_obj.previous_page_number }}"
 			class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
@@ -24,5 +29,23 @@
 			Next
 		</a>
 	{% endif %}
+	|
+	<a href="?page={{ page_obj.paginator.num_pages }}"
+		class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+		Last
+	</a>
+	<!-- num records per page selector -->
+	<div class="ml-4">
+		<label for="num_per_page" class="text-gray-700 dark:text-gray-300">Records per page:</label>
+		<select id="num_per_page" name="num_per_page"
+			class="ml-2 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+			onchange="location.href='?page=1&num_per_page='+this.value;">
+			<option value="5" {% if request.GET.num_per_page == '5' %}selected{% endif %}>5</option>
+			<option value="10" {% if request.GET.num_per_page == '10' or not request.GET.num_per_page %}selected{% endif %}>10</option>
+			<option value="20" {% if request.GET.num_per_page == '20' %}selected{% endif %}>20</option>
+			<option value="50" {% if request.GET.num_per_page == '50' %}selected{% endif %}>50</option>
+		</select>
+	</div>
+
 
 </div>
