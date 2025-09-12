@@ -86,7 +86,7 @@ def index(request):
 
     # 🎯 Pass page_obj (for pagination) instead of raw queryset
     context = {
-        "ratings": all_ratings,
+        "user_conv_count": user_conversations.count(),
         "page_obj": page_obj,
     }
     return render(request, 'users_app/index.html', context)

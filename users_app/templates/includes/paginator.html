@@ -12,7 +12,7 @@
 		</a>
 	{% endif %}
 
-	{% for num in page_obj.paginator.page_range %}
+	<!-- {% for num in page_obj.paginator.page_range %}
 		{% if page_obj.number == num %}
 			<span class="px-3 py-1 bg-blue-600 text-white rounded">{{ num }}</span>
 		{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} 
@@ -21,7 +21,24 @@
 			{{ num }}
 			</a>
 		{% endif %}
+	{% endfor %} -->
+	{% for num in page_obj.paginator.page_range %}
+		{% if num == 1 or num == page_obj.paginator.num_pages or (num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2') %}
+			{% if page_obj.number == num %}
+				<span class="px-3 py-1 bg-blue-600 text-white rounded">{{ num }}</span>
+			{% else %}
+				<a href="?page={{ num }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
+				class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+				{{ num }}
+				</a>
+			{% endif %}
+		{% elif num == 2 and page_obj.number > 4 %}
+			…  <!-- ellipsis for skipped middle -->
+		{% elif num == page_obj.paginator.num_pages|add:'-1' and page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+			…  <!-- ellipsis for skipped middle -->
+		{% endif %}
 	{% endfor %}
+
 
 	{% if page_obj.has_next %}
 		<a href="?page={{ page_obj.next_page_number }}"
