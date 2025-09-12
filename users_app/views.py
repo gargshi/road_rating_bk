@@ -26,7 +26,8 @@ def index(request):
 	logger.info(f"Index view: Current session chat_id: {login_user_id}, Authenticated user: {request.user}")
 	if login_user_id:
 		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')
-		paginator=Paginator(user_conversations,10)
+		records_per_page=request.GET.get('num_per_page',10)
+		paginator=Paginator(user_conversations,records_per_page)
 		page_number=request.GET.get('page')
 		page_obj=paginator.get_page(page_number)
 		# all_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=login_user_id).order_by('-created_at')[:10]
