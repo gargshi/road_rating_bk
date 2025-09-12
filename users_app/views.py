@@ -9,6 +9,8 @@ from ratings.models import TeleUser
 from django.core.paginator import Paginator
 logger = logging.getLogger(__name__)
 
+# FAILSAFE_ROW_LIMIT=100000 # temporary limit to avoid huge db hits
+
 # Create your views here.
 def index(request):
 	#if not login
@@ -23,7 +25,7 @@ def index(request):
 	# user_conversations = UserConversation.objects.all().order_by('-updated_at')[:10]
 	logger.info(f"Index view: Current session chat_id: {login_user_id}, Authenticated user: {request.user}")
 	if login_user_id:
-		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')[:10]
+		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')
 		paginator=Paginator(user_conversations,10)
 		page_number=request.GET.get('page')
 		page_obj=paginator.get_page(page_number)
