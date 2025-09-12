@@ -12,33 +12,85 @@ logger = logging.getLogger(__name__)
 # FAILSAFE_ROW_LIMIT=100000 # temporary limit to avoid huge db hits
 
 # Create your views here.
-def index(request):
-	#if not login
-	if not request.user.is_authenticated and request.path != '/login/':
-		return redirect('login')
-	#fetch ratings from db and pass to template
-	all_ratings = []  # Replace with actual query to fetch ratings
-	user_conversations = []  # Replace with actual query to fetch user conversations
-	logger.info(f"Index view: Current session chat_id: {request.session.get('chat_id')}, Authenticated user: {request.user}")
-	logger.info(f"session : {request.session.items()}")
-	login_user_id = request.session.get('chat_id')
-	# user_conversations = UserConversation.objects.all().order_by('-updated_at')[:10]
-	logger.info(f"Index view: Current session chat_id: {login_user_id}, Authenticated user: {request.user}")
-	if login_user_id:
-		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')
-		records_per_page=request.GET.get('num_per_page',10)
-		paginator=Paginator(user_conversations,records_per_page)
-		page_number=request.GET.get('page')
-		page_obj=paginator.get_page(page_number)
-		# all_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=login_user_id).order_by('-created_at')[:10]
-		logger.info(f"Index view: fetched {len(user_conversations)} conversations and {len(all_ratings)} ratings for user {login_user_id}")
-	else:
-		logger.warning("Index view: No chat_id in session")
-		logout(request)
-	# all_ratings = RoadRating.objects.all().order_by('-created_at')[:10]
+# def index(request):
+# 	#if not login
+# 	if not request.user.is_authenticated and request.path != '/login/':
+# 		return redirect('login')
+# 	#fetch ratings from db and pass to template
+# 	all_ratings = []  # Replace with actual query to fetch ratings
+# 	user_conversations = []  # Replace with actual query to fetch user conversations
+# 	logger.info(f"Index view: Current session chat_id: {request.session.get('chat_id')}, Authenticated user: {request.user}")
+# 	logger.info(f"session : {request.session.items()}")
+# 	login_user_id = request.session.get('chat_id')
+# 	# user_conversations = UserConversation.objects.all().order_by('-updated_at')[:10]
+# 	logger.info(f"Index view: Current session chat_id: {login_user_id}, Authenticated user: {request.user}")
+# 	if login_user_id:
+# 		user_conversations = UserConversation.objects.filter(fk_chat_id__chat_id=login_user_id).order_by('-updated_at')
+# 		records_per_page=request.GET.get('num_per_page',10)
+# 		paginator=Paginator(user_conversations,records_per_page)
+# 		page_number=request.GET.get('page')
+# 		page_obj=paginator.get_page(page_number)
+# 		# all_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=login_user_id).order_by('-created_at')[:10]
+# 		logger.info(f"Index view: fetched {len(user_conversations)} conversations and {len(all_ratings)} ratings for user {login_user_id}")
+# 	else:
+# 		logger.warning("Index view: No chat_id in session")
+# 		logout(request)
+# 	# all_ratings = RoadRating.objects.all().order_by('-created_at')[:10]
 
-	context = {"ratings": all_ratings, "user_conversations": user_conversations, "page_obj": page_obj}
-	return render(request, 'users_app/index.html', context)
+# 	context = {"ratings": all_ratings, "user_conversations": user_conversations, "page_obj": page_obj}
+# 	return render(request, 'users_app/index.html', context)
+
+def index(request):
+    # 🚪 Redirect if not logged in
+    if not request.user.is_authenticated and request.path != '/login/':
+        return redirect('login')
+
+    all_ratings = []
+    user_conversations = []
+    page_obj = None
+
+    # 📝 Debug logging
+    logger.info(f"Index view: Current session chat_id: {request.session.get('chat_id')}, Authenticated user: {request.user}")
+    logger.info(f"session : {dict(request.session.items())}")
+
+    login_user_id = request.session.get('chat_id')
+
+    if login_user_id:
+        # 📌 Fetch user conversations
+        user_conversations = UserConversation.objects.filter(
+            fk_chat_id__chat_id=login_user_id
+        ).order_by('-updated_at')
+
+        # ✅ Handle "records per page" (session-based)
+        if 'num_per_page' in request.GET:
+            request.session['num_per_page'] = request.GET.get('num_per_page', 10)
+
+        records_per_page = int(request.session.get('num_per_page', 10))
+
+        paginator = Paginator(user_conversations, records_per_page)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # (optional) ratings if needed
+        # all_ratings = RoadRating.objects.filter(
+        #     fk_road_id__fk_chat_id__chat_id=login_user_id
+        # ).order_by('-created_at')[:10]
+
+        logger.info(
+            f"Index view: fetched {user_conversations.count()} conversations "
+            f"and {len(all_ratings)} ratings for user {login_user_id}"
+        )
+    else:
+        logger.warning("Index view: No chat_id in session")
+        logout(request)
+
+    # 🎯 Pass page_obj (for pagination) instead of raw queryset
+    context = {
+        "ratings": all_ratings,
+        "page_obj": page_obj,
+    }
+    return render(request, 'users_app/index.html', context)
+
 
 def login_view(request):
 	# If already logged in, redirect to index
