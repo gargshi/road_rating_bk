@@ -239,7 +239,8 @@ def add_rating_prompt(chat_id):
 def add_comment_prompt(chat_id):
     keyboard = {
                 "keyboard": [
-                    [{"text": "📝 Add Comment"}, {"text": "⏭ Skip"}]
+                    [{"text": "📝 Add Comment"}, {"text": "⏭ Skip"}],
+                    [{"text": "↩️ Exit"}]
                 ],
                 "resize_keyboard": True
             }
@@ -249,7 +250,8 @@ def add_location_prompt(chat_id):
     keyboard = {
                 "keyboard": [
                     [{"text": "📍 Share Location", "request_location": True}],
-                    [{"text": "⏭ Skip Location"}]
+                    [{"text": "⏭ Skip Location"}],
+                    [{"text": "↩️ Exit"}]
                 ],
                 "resize_keyboard": True
             }
@@ -305,7 +307,8 @@ def add_media_prompt(chat_id):
     keyboard = {
                 "keyboard": [
                     [{"text": "📎 Add Media"}],   
-                    [{"text": "⏭ Skip Media"}]
+                    [{"text": "⏭ Skip Media"}],
+                    [{"text": "↩️ Exit"}]
                 ],
                 "resize_keyboard": True
             }
@@ -461,9 +464,6 @@ def handle_media_upload(message, chat_id, session, road_id):
         session['road_media_id']=road_media.id
         logger.info(f"Saved RoadMedia {road_media.id} for RoadRating {road_id}")
         return True
-        send_message_markdown(chat_id, f"📎 Media added")       
-
     except Exception as e:
         logger.exception("Media upload failed")
         return False
-        send_message_markdown(chat_id, "⚠️ Could not upload media. Try again.")
