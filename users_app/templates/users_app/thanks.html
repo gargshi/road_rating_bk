@@ -4,24 +4,25 @@
 		<title>User Dashboard</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<style>
-			.error {
-				color: red;
-				font-weight: bold;
-			}
-		</style>
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
-	<body>
-		{% if error %}
-			<h3>Warning</h3>
-			<p class="error">{{ error }}</p>
-		{% elif message %}
-			<h3>Message</h3>
-			<p>{{ message }}</p>
-		{% else %}
-			<h1>Thank You!</h1>
-			<p>To view your dashboard again, please go to your telegram bot.</p>			
-		{% endif %}
-		<p>Thanks. You may now close this window now.</p>		
+	<body class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+		<div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 space-y-4">
+			{% if error %}
+			<h3 class="text-lg font-semibold text-red-600 dark:text-red-400">⚠️ Warning</h3>
+			<p class="text-red-600 dark:text-red-400 font-medium">{{ error }}</p>
+			{% elif message %}
+			<h3 class="text-lg font-semibold text-indigo-600 dark:text-indigo-400">ℹ️ Message</h3>
+			<p class="text-gray-700 dark:text-gray-200">{{ message }}</p>
+			{% else %}
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">✅ Thank You!</h1>
+			<p class="text-gray-600 dark:text-gray-300">
+				To view your dashboard again, please go to your telegram bot.
+			</p>
+			{% endif %}
+			<p class="text-sm text-gray-500 dark:text-gray-400">
+			Thanks. You may now close this window.
+			</p>
+		</div>
 	</body>
 </html>
