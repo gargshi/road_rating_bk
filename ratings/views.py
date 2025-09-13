@@ -117,7 +117,13 @@ def webhook_widgets(request):
         # Start rating
         elif text in ["rate"]:
             user_sessions[chat_id] = {"step": "road_name"}
-            send_message_markdown(chat_id, "📍 Please enter the road name:")
+            keyboard = {
+                    "keyboard": [
+                        [{"text": "↩️ Exit"}]
+                    ],
+                    "resize_keyboard": True,
+                }
+            send_message_markdown(chat_id, "Please enter the road name:",reply_markup=keyboard)
         
         #go to dashboard - tbd
         elif text in ["dashboard"]:
@@ -391,7 +397,7 @@ def create_teleuser_if_not_exists(chat_id, first_name=None, last_name=None, user
 
 
 def get_presigned_url(request, filename):
-    s3 = boto3.client("s3", region_name="ap-south-1")
+    s3 = boto3.client("s3", region_name=settings.AWS_REGION)
     bucket = settings.AWS_STORAGE_BUCKET_NAME
 
     url = s3.generate_presigned_url(
