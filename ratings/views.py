@@ -195,6 +195,7 @@ def webhook_widgets(request):
         user_sessions[chat_id]["gps_coordinates"] = gps
         user_sessions[chat_id]["step"] = "media"
         create_road_rating_and_conversation(chat_id)
+        add_media_prompt(chat_id)
         # save_rating(chat_id)
         # del user_sessions[chat_id]
 
@@ -249,8 +250,7 @@ def add_comment_prompt(chat_id):
 def add_location_prompt(chat_id):
     keyboard = {
                 "keyboard": [
-                    [{"text": "📍 Share Location", "request_location": True}],
-                    [{"text": "⏭ Skip Location"}],
+                    [{"text": "📍 Share Location", "request_location": True},{"text": "⏭ Skip Location"}],                    
                     [{"text": "↩️ Exit"}]
                 ],
                 "resize_keyboard": True
@@ -297,7 +297,7 @@ def create_road_rating_and_conversation(chat_id):
     )
     logger.info(f"Created RoadRating {feedback.id} and UserConversation for chat_id {chat_id}")
     session["road_id"]=feedback.id
-    add_media_prompt(chat_id)
+    # add_media_prompt(chat_id)
     
 def save_rating(chat_id):
     send_message_markdown(chat_id, "✅ Your road rating has been saved! Thank you 🙏")
