@@ -159,7 +159,7 @@
 
         <!-- Page Numbers -->
         {% for num in page_obj.paginator.page_range %}
-          {% if num == 1 or num == page_obj.paginator.num_pages or (num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2") %}
+          {% if num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
             {% if page_obj.number == num %}
               <a href="?page={{ num }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
                  aria-current="page"
