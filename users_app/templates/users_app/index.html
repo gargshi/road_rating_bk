@@ -48,7 +48,7 @@
 			'{{ user_conversation.fk_road_id.comment|escapejs }}',
 			'{{ user_conversation.fk_road_id.created_at }}',
 			'{{ user_conversation.fk_road_id.gps_coordinates }}',
-			[{% for pic in user_conversation.fk_road_id.media.all %}'{{ pic.file_url|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+			[{% for pic in user_conversation.fk_road_id.media.all %}'{{ pic.file_url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
 
 		<h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
 			{{ user_conversation.fk_road_id.road_name }}
