@@ -122,6 +122,7 @@
 	<!-- Scripts -->
 	<script>
 		// Modal functions
+		/*
 		function openModal(name, rating, comment, date, gps, pics) {
 			document.getElementById('modalTitle').textContent = name;
 			document.getElementById('modalRating').textContent = "⭐ Rating: " + rating;
@@ -152,7 +153,50 @@
 
 			document.getElementById('detailsModal').classList.remove("hidden");
 			document.getElementById('detailsModal').classList.add("flex");
+		} */
+		function openModal(roadId, name, rating, comment, date, gps) {
+			document.getElementById('modalTitle').textContent = name;
+			document.getElementById('modalRating').textContent = "⭐ Rating: " + rating;
+			document.getElementById('modalComment').innerHTML = "<b>Comment:</b> " + comment;
+			document.getElementById('modalDate').textContent = "Rated at: " + date;
+
+			let mapLink = document.getElementById('modalMap');
+			if (gps && gps !== "None") {
+				mapLink.href = generateMapLink(gps);
+				mapLink.textContent = "📍 View on Map";
+			} else {
+				mapLink.textContent = "No GPS coordinates available";
+				mapLink.href = "#";
+			}
+
+			let picsContainer = document.getElementById('modalPics');
+			picsContainer.innerHTML = "<p class='text-gray-500'>Loading images...</p>";
+
+			// 🔥 Fetch presigned URLs dynamically
+			fetch(`/get-presigned-urls/${roadId}/`)
+				.then(response => response.json())
+				.then(data => {
+					picsContainer.innerHTML = "";
+					if (data.urls && data.urls.length > 0) {
+						data.urls.forEach(url => {
+							let img = document.createElement("img");
+							img.src = url;
+							img.className = "rounded-lg shadow m-2 w-32 h-32 object-cover";
+							picsContainer.appendChild(img);
+						});
+					} else {
+						picsContainer.innerHTML = "<p class='text-gray-400 italic'>No images uploaded.</p>";
+					}
+				})
+				.catch(err => {
+					console.error("Error loading images:", err);
+					picsContainer.innerHTML = "<p class='text-red-500 italic'>Failed to load images.</p>";
+				});
+
+			document.getElementById('detailsModal').classList.remove("hidden");
+			document.getElementById('detailsModal').classList.add("flex");
 		}
+
 
 		function closeModal() {
 			document.getElementById('detailsModal').classList.add("hidden");
