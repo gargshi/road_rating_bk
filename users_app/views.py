@@ -7,6 +7,7 @@ from utilities.cryptography import decode_chat_id
 from urllib.parse import unquote
 from ratings.models import TeleUser
 from django.core.paginator import Paginator
+from django.db.models import Prefetch
 logger = logging.getLogger(__name__)
 
 # FAILSAFE_ROW_LIMIT=100000 # temporary limit to avoid huge db hits
@@ -57,9 +58,18 @@ def index(request):
 
     if login_user_id:
         # 📌 Fetch user conversations
-        user_conversations = UserConversation.objects.filter(
-            fk_chat_id__chat_id=login_user_id
-        ).order_by('-updated_at')
+        # user_conversations = UserConversation.objects.filter(
+        #     fk_chat_id__chat_id=login_user_id
+        # ).order_by('-updated_at')
+        user_conversations = (
+            UserConversation.objects
+            .filter(fk_chat_id__chat_id=login_user_id)
+            .order_by('-updated_at')
+            .select_related("fk_road_id")
+            .prefetch_related(
+                Prefetch("fk_road_id__media")  # <-- gets RoadMedia objects
+            )
+        )
 
         # ✅ Handle "records per page" (session-based)
         if 'num_per_page' in request.GET:
