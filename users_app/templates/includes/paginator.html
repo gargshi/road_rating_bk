@@ -38,7 +38,7 @@
       <div>
         <label for="num_per_page" class="text-sm text-gray-600 dark:text-gray-300 mr-2">Records per page:</label>
         <select id="num_per_page" name="num_per_page"
-          class="rounded-md bg-white dark:bg-white/5 px-2 py-1 text-sm text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10"
+          class="rounded-md bg-white dark:bg-white/5 px-2 py-1 text-sm text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10"
           onchange="location.href='?page=1&num_per_page='+this.value;">
           <option value="5"  {% if request.session.num_per_page|stringformat:"s" == "5" %}selected{% endif %}>5</option>
           <option value="10" {% if request.session.num_per_page|stringformat:"s" == "10" or not request.session.num_per_page %}selected{% endif %}>10</option>
