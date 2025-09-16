@@ -95,7 +95,7 @@ def webhook_widgets(request):
             add_more_media_prompt(chat_id)
         else:
             send_message_markdown(chat_id, "⚠️ Could not upload media. Please try again from dashboard. Thanks.")
-        save_rating(chat_id)
+        # save_rating(chat_id)
         # return JsonResponse({"ok": True})
     
 
@@ -205,6 +205,9 @@ def webhook_widgets(request):
         add_media_prompt(chat_id)
         # save_rating(chat_id)
         # del user_sessions[chat_id]
+    
+    else:
+        send_message_markdown(chat_id, "⚠️ Unrecognized input. Please use the buttons to navigate. To start a new rating, type /start")
 
     return JsonResponse({"ok": True})
 
