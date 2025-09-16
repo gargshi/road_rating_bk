@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}RoadRating{% endblock %} - RoadRating</title>
+	<script src="{% static 'users_app/index.js' %}"></script>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		// Enable Tailwind dark mode via class strategy
+		tailwind.config = {
+			darkMode: 'class',
+			theme: {
+				extend: {
+					fontFamily: {
+						sans: ['Arial', 'ui-sans-serif', 'system-ui'],
+					}
+				}
+			}
+		}
+	</script>    
+</head>
+	<body>
+		{% block content %}
+		{% endblock %}		
+
+		<!-- Footer -->
+		<footer class="text-center text-gray-500 py-4">
+			© 2025 RoadRating. All rights reserved.
+			<br>
+		</footer>
+	</body>
+</html>
