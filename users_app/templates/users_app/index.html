@@ -115,45 +115,79 @@
 				class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"></a>
 
 			<!-- Pics Grid -->
-			<div id="modalPics" class="grid grid-cols-2 gap-4"></div>
+			<!-- <div id="modalPics" class="grid grid-cols-2 gap-4"></div> -->
+			 <!-- Slideshow Container -->
+			<div id="modalPics" class="relative w-full h-64 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
+				<!-- Slides will be injected dynamically -->
+			</div>
+
+			<!-- Navigation buttons -->
+			<button id="prevBtn" 
+					class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+				&#10094;
+			</button>
+			<button id="nextBtn" 
+					class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+				&#10095;
+			</button>
 		</div>
 	</div>
 
 	<!-- Scripts -->
 	<script>
 		// Modal functions
-		/*
-		function openModal(name, rating, comment, date, gps, pics) {
-			document.getElementById('modalTitle').textContent = name;
-			document.getElementById('modalRating').textContent = "⭐ Rating: " + rating;
-			document.getElementById('modalComment').innerHTML = "<b>Comment:</b> " + comment;
-			document.getElementById('modalDate').textContent = "Rated at: " + date;
+		
+		let slideIndex = 0;
+		let slideInterval;
 
-			let mapLink = document.getElementById('modalMap');
-			if (gps && gps !== "None") {
-				mapLink.href = generateMapLink(gps);
-				mapLink.textContent = "📍 View on Map";
-			} else {
-				mapLink.textContent = "No GPS coordinates available";
-				mapLink.href = "#";
-			}
+		function renderSlideshow(pics) {
+			const container = document.getElementById("modalPics");
+			container.innerHTML = ""; // reset
 
-			let picsContainer = document.getElementById('modalPics');
-			picsContainer.innerHTML = "";
-			if (pics.length > 0) {
-				pics.forEach(url => {
-					let img = document.createElement("img");
-					img.src = url;
-					img.className = "rounded-lg shadow";
-					picsContainer.appendChild(img);
-				});
-			} else {
-				picsContainer.innerHTML = "<p class='text-gray-400 italic'>No images uploaded.</p>";
-			}
+			// Create slides
+			pics.forEach((url, idx) => {
+				const img = document.createElement("img");
+				img.src = url;
+				img.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
+				img.style.opacity = idx === 0 ? "1" : "0"; // first visible
+				container.appendChild(img);
+			});
 
-			document.getElementById('detailsModal').classList.remove("hidden");
-			document.getElementById('detailsModal').classList.add("flex");
-		} */
+			slideIndex = 0;
+			startSlideshow();
+		}
+
+		function showSlide(index) {
+			const slides = document.querySelectorAll("#modalPics img");
+			if (!slides.length) return;
+
+			slides.forEach((img, i) => {
+				img.style.opacity = i === index ? "1" : "0";
+			});
+		}
+
+		function startSlideshow() {
+			clearInterval(slideInterval);
+			slideInterval = setInterval(() => {
+				const slides = document.querySelectorAll("#modalPics img");
+				slideIndex = (slideIndex + 1) % slides.length;
+				showSlide(slideIndex);
+			}, 3000); // 3 seconds
+		}
+
+		// Navigation buttons
+		document.getElementById("prevBtn").addEventListener("click", () => {
+			const slides = document.querySelectorAll("#modalPics img");
+			slideIndex = (slideIndex - 1 + slides.length) % slides.length;
+			showSlide(slideIndex);
+		});
+
+		document.getElementById("nextBtn").addEventListener("click", () => {
+			const slides = document.querySelectorAll("#modalPics img");
+			slideIndex = (slideIndex + 1) % slides.length;
+			showSlide(slideIndex);
+		});
+
 		function openModal(roadId, name, rating, comment, date, gps) {
 			document.getElementById('modalTitle').textContent = name;
 			document.getElementById('modalRating').textContent = "⭐ Rating: " + rating;
