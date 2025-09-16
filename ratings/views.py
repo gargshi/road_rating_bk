@@ -92,10 +92,10 @@ def webhook_widgets(request):
             return JsonResponse({"ok": False})
         if handle_media_upload(message, chat_id, session, road_id):
             send_message_markdown(chat_id, f"📎 Media added")
-            add_more_media_prompt(chat_id)
             return JsonResponse({"ok": True})
         else:
             send_message_markdown(chat_id, "⚠️ Could not upload media. Please try again from dashboard. Thanks.")
+        add_more_media_prompt(chat_id)
         # save_rating(chat_id)
         # return JsonResponse({"ok": True})
     
