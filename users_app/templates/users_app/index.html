@@ -202,8 +202,30 @@
 				mapLink.textContent = "No GPS coordinates available";
 				mapLink.href = "#";
 			}
+			
+			fetch(`/get-presigned-urls/${roadId}/`)
+				.then(response => response.json())
+				.then(data => {
+					if (data.urls && data.urls.length > 0) {
+						renderSlideshow(data.urls);
+						document.getElementById("prevBtn").style.display = "block";
+						document.getElementById("nextBtn").style.display = "block";
+					} else {
+						const container = document.getElementById("modalPics");
+						container.innerHTML = "<p class='text-gray-400 italic p-4'>No images uploaded.</p>";
+						document.getElementById("prevBtn").style.display = "none";
+						document.getElementById("nextBtn").style.display = "none";
+					}
+				})
+				.catch(err => {
+					console.error("Error loading images:", err);
+					const container = document.getElementById("modalPics");
+					container.innerHTML = "<p class='text-red-500 italic p-4'>Failed to load images.</p>";
+					document.getElementById("prevBtn").style.display = "none";
+					document.getElementById("nextBtn").style.display = "none";
+				});
 
-			let picsContainer = document.getElementById('modalPics');
+			/*let picsContainer = document.getElementById('modalPics');
 			picsContainer.innerHTML = "<p class='text-gray-500'>Loading images...</p>";
 
 			// 🔥 Fetch presigned URLs dynamically
@@ -225,7 +247,7 @@
 				.catch(err => {
 					console.error("Error loading images:", err);
 					picsContainer.innerHTML = "<p class='text-red-500 italic'>Failed to load images.</p>";
-				});
+				});*/
 
 			document.getElementById('detailsModal').classList.remove("hidden");
 			document.getElementById('detailsModal').classList.add("flex");
