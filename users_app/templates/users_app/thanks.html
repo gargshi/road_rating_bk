@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<title>User Dashboard</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+{% extends 'users_app/base.html' %}
+
+{% block title %}Thanks{% endblock %}
+{% block content %}
+	<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
 		<div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 space-y-4">
 			{% if error %}
 			<h3 class="text-lg font-semibold text-red-600 dark:text-red-400">⚠️ Warning</h3>
@@ -24,5 +20,5 @@
 			Thanks. You may now close this window.
 			</p>
 		</div>
-	</body>
-</html>
+	</div>
+{% endblock %}
