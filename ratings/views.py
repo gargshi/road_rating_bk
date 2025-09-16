@@ -92,6 +92,7 @@ def webhook_widgets(request):
             return JsonResponse({"ok": False})
         if handle_media_upload(message, chat_id, session, road_id):
             send_message_markdown(chat_id, f"📎 Media added")
+            add_more_media_prompt(chat_id)
         else:
             send_message_markdown(chat_id, "⚠️ Could not upload media. Please try again from dashboard. Thanks.")
         save_rating(chat_id)
@@ -219,6 +220,16 @@ def exiting_program(chat_id):
     send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start", reply_markup=keyboard)
     if chat_id in user_sessions:
         del user_sessions[chat_id]
+
+def add_more_media_prompt(chat_id):
+    keyboard = {
+                "keyboard": [
+                    [{"text": "📎 Add Media"},{"text": "⏭ Skip Media"}],                    
+                    [{"text": "↩️ Exit"}]
+                ],
+                "resize_keyboard": True
+            }
+    send_message_markdown(chat_id, "Would you like to add any more supporting media (photos, videos)?", reply_markup=keyboard)
 
 def show_dashboard_otp_logic(chat_id):
     secret_otp=random.randint(100000,999999)
