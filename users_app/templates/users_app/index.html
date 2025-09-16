@@ -46,12 +46,25 @@
 						{{ user_conversation.fk_road_id.road_name }}
 					</h3>
 
-					<p class="text-yellow-400 font-semibold mb-1">
-						⭐ Rating: {{ user_conversation.fk_road_id.rating }}
+					<p class="
+						font-semibold mb-1
+						{% if user_conversation.fk_road_id.rating >= 4 %}
+							text-green-500 dark:text-green-400
+						{% elif user_conversation.fk_road_id.rating >= 2 %}
+							text-yellow-400 dark:text-yellow-300
+						{% else %}
+							text-red-500 dark:text-red-400
+						{% endif %}
+					">
+						{{ user_conversation.fk_road_id.rating }}⭐
 					</p>
 
 					<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
-						<span class="font-medium">Comment:</span> {{ user_conversation.fk_road_id.comment }}
+						{% if user_conversation.fk_road_id.comment %}
+							{{ user_conversation.fk_road_id.comment }}
+						{% else %}
+							No comment provided.
+						{% endif %}						
 					</p>
 
 					<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
