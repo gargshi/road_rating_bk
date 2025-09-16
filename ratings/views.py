@@ -46,7 +46,8 @@ COMMANDS = {
         "⏭ Skip Location": "skip_location",
         "📍 Share Location": "share_location",
         "📎 Add Media": "add_media",
-        "⏭ Skip Media": "skip_media",        
+        "⏭ Skip Media": "skip_media",
+        "⏭ No More Media": "skip_media",        
     }
 
 def send_message_markdown(chat_id, text, reply_markup=None, parse_mode="Markdown"):
@@ -95,7 +96,7 @@ def webhook_widgets(request):
             return JsonResponse({"ok": True})
         else:
             send_message_markdown(chat_id, "⚠️ Could not upload media. Please try again from dashboard. Thanks.")
-        add_more_media_prompt(chat_id)
+        # add_more_media_prompt(chat_id)
         # save_rating(chat_id)
         # return JsonResponse({"ok": True})
     
@@ -177,13 +178,13 @@ def webhook_widgets(request):
         elif text == "add_media":
             keyboard = {
                 "keyboard": [                    
-                    [{"text": "⏭ Skip Media"}]
+                    [{"text": "⏭ No More Media"}]
                 ],
                 "resize_keyboard": True
             }
             send_message_markdown(chat_id, "📎 Please upload any supporting media (photos, videos) you want to attach to this rating.", reply_markup=keyboard)
         
-        elif text in "skip_media":
+        elif text in ["skip_media"]:
             save_rating(chat_id)
             del user_sessions[chat_id]
 
@@ -203,9 +204,7 @@ def webhook_widgets(request):
         user_sessions[chat_id]["gps_coordinates"] = gps
         user_sessions[chat_id]["step"] = "media"
         create_road_rating_and_conversation(chat_id)
-        add_media_prompt(chat_id)
-        # save_rating(chat_id)
-        # del user_sessions[chat_id]
+        add_media_prompt(chat_id)        
     
     else:
         send_message_markdown(chat_id, "⚠️ Unrecognized input. Please use the buttons to navigate. To start a new rating, type /start")
@@ -224,16 +223,6 @@ def exiting_program(chat_id):
     send_message_markdown(chat_id, "👋 Thank you for using the Road Rating Bot! To start again, type /start", reply_markup=keyboard)
     if chat_id in user_sessions:
         del user_sessions[chat_id]
-
-def add_more_media_prompt(chat_id):
-    keyboard = {
-                "keyboard": [
-                    [{"text": "📎 Add Media"},{"text": "⏭ Skip Media"}],                    
-                    [{"text": "↩️ Exit"}]
-                ],
-                "resize_keyboard": True
-            }
-    send_message_markdown(chat_id, "Would you like to add any more supporting media (photos, videos)?", reply_markup=keyboard)
 
 def show_dashboard_otp_logic(chat_id):
     secret_otp=random.randint(100000,999999)
@@ -279,10 +268,11 @@ def add_location_prompt(chat_id):
     send_message_markdown(chat_id, "📍 Please share the location:", reply_markup=keyboard)
 
 def past_rating(chat_id):
-    past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")
-    logger.info(f"Found {past_ratings.count()} past ratings for chat_id {chat_id}")
+    RECENT_RATINGS=10    
+    past_ratings = RoadRating.objects.filter(fk_road_id__fk_chat_id__chat_id=chat_id).order_by("-created_at")[:RECENT_RATINGS]
+    logger.info(f"Found {past_ratings.count()} past ratings for chat_id {chat_id}, showing up to {RECENT_RATINGS}")
     if past_ratings.exists():
-        send_message_markdown(chat_id, "📝 Your past ratings:")
+        send_message_markdown(chat_id, f"📝 Showing Your past {RECENT_RATINGS} ratings:")
         for rating in past_ratings:
             logger.info(f"Found rating: {rating}")
             maps_link = f"https://www.google.com/maps?q={rating.gps_coordinates}" if rating.gps_coordinates else "—"
@@ -295,7 +285,7 @@ def past_rating(chat_id):
                         f"Date: {rating.created_at.strftime('%Y-%m-%d %H:%M')}\n"
                     )
     else:
-        send_message_markdown(chat_id, "ℹ️ You haven’t rated any roads yet.")
+        send_message_markdown(chat_id, "ℹ️ It seems you haven’t rated any roads yet.")
 
 
 def create_road_rating_and_conversation(chat_id):
