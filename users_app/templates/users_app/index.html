@@ -100,6 +100,9 @@
 			<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
 				<!-- Slides will be injected dynamically -->
 			</div>
+			<div id="modalVideos" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
+				<!-- Slides will be injected dynamically -->
+			</div>
 
 			<!-- Navigation buttons -->
 			<button id="prevBtn" 
@@ -142,7 +145,8 @@
 					console.log("video detected");
 					element = document.createElement("video");
 					element.src = url;
-					element.muted = true;      // prevent autoplay issues
+					element.muted = true;
+					element.controls = true;    // prevent autoplay issues
 					element.loop = true;       // optional
 					element.playsInline = true;
 					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
