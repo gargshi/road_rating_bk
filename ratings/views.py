@@ -460,9 +460,10 @@ def handle_media_upload(message, chat_id, session, road_id):
 
         # Generate uuid + extension
         ext = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
+
         
         # s3_key = f"user_uploads/{session.get('road_id','pending')}/{unique_id}{ext}"
-        s3_key = f"road_media/{road_media.id}.{ext}"
+        s3_key = f"road_media/{road_media.id}.{extension}"
 
         # Upload to S3
         s3.upload_fileobj(
