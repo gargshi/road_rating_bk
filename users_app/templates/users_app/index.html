@@ -138,7 +138,7 @@
 
 				// check file type by extension
 				console.log(url);
-				if (url.match(/\.(mp4|webm|ogg)$/i)) {
+				if (url.match(/\.(mp4|webm|ogg)$/i) || url.split('?')[0].match(/\.(mp4|webm|ogg)$/i)) {
 					console.log("video detected");
 					element = document.createElement("video");
 					element.src = url;
