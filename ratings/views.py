@@ -424,17 +424,19 @@ def handle_media_upload(message, chat_id, session, road_id):
         file_id = None
         orig_filename = None
         content_type = None
-        media_type = "doc"
+        media_type = "doc"        
 
         if "photo" in message:
             file_id = message["photo"][-1]["file_id"]
-            orig_filename = f"{file_id}.jpg"
+            extension=message["photo"][-1]["file_name"].split('.')[-1] if "file_name" in message["photo"][-1] else "jpg"
+            orig_filename = f"{file_id}.{extension}"
             content_type = "image/jpeg"
             media_type = "photo"
             extension="jpg"
         elif "video" in message:
             file_id = message["video"]["file_id"]
-            orig_filename = f"{file_id}.mp4"
+            extension=message["video"]["file_name"].split('.')[-1] if "file_name" in message["video"] else "mp4"
+            orig_filename = f"{file_id}.{extension}"
             content_type = message["video"].get("mime_type", "video/mp4")
             media_type = "video"
             extension="mp4"
@@ -446,6 +448,7 @@ def handle_media_upload(message, chat_id, session, road_id):
             extension = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
 
         # Get Telegram file URL
+        logger.info(f"Handling media upload for file_id {file_id}, orig_filename {orig_filename}, content_type {content_type}, media_type {media_type}")
         getfile_res = requests.get(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getFile?file_id={file_id}")
         getfile_res.raise_for_status()
         file_path = getfile_res.json()["result"]["file_path"]
