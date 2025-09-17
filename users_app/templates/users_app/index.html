@@ -125,12 +125,36 @@
 			container.innerHTML = ""; // reset
 
 			// Create slides
-			pics.forEach((url, idx) => {
+			/*pics.forEach((url, idx) => {
 				const img = document.createElement("img");
 				img.src = url;
 				img.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
 				img.style.opacity = idx === 0 ? "1" : "0"; // first visible
 				container.appendChild(img);
+			});*/
+			// Create slides
+			pics.forEach((url, idx) => {
+				let element;
+
+				// check file type by extension
+				if (url.match(/\.(mp4|webm|ogg)$/i)) {
+					element = document.createElement("video");
+					element.src = url;
+					element.muted = true;      // prevent autoplay issues
+					element.loop = true;       // optional
+					element.playsInline = true;
+					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
+					if (idx === 0) element.autoplay = true; // start first video immediately
+				} else {
+					element = document.createElement("img");
+					element.src = url;
+					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
+				}
+
+				// common styling for visibility
+				element.style.opacity = idx === 0 ? "1" : "0";
+
+				container.appendChild(element);
 			});
 
 			slideIndex = 0;

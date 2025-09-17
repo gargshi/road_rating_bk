@@ -419,6 +419,7 @@ def get_presigned_url(request, filename):
 
 def handle_media_upload(message, chat_id, session, road_id):
     s3 = boto3.client("s3", region_name=settings.AWS_REGION)
+    extension="jpg"
     try:
         file_id = None
         orig_filename = None
@@ -430,16 +431,19 @@ def handle_media_upload(message, chat_id, session, road_id):
             orig_filename = f"{file_id}.jpg"
             content_type = "image/jpeg"
             media_type = "photo"
+            extension="jpg"
         elif "video" in message:
             file_id = message["video"]["file_id"]
             orig_filename = f"{file_id}.mp4"
             content_type = message["video"].get("mime_type", "video/mp4")
             media_type = "video"
+            extension="mp4"
         elif "document" in message:
             file_id = message["document"]["file_id"]
             orig_filename = message["document"].get("file_name") or f"{file_id}"
             content_type = message["document"].get("mime_type") or mimetypes.guess_type(orig_filename)[0] or "application/octet-stream"
             media_type = "doc"
+            extension = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
 
         # Get Telegram file URL
         getfile_res = requests.get(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getFile?file_id={file_id}")
@@ -458,7 +462,7 @@ def handle_media_upload(message, chat_id, session, road_id):
         ext = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
         
         # s3_key = f"user_uploads/{session.get('road_id','pending')}/{unique_id}{ext}"
-        s3_key = f"road_media/{road_media.id}.jpg"
+        s3_key = f"road_media/{road_media.id}.{ext}"
 
         # Upload to S3
         s3.upload_fileobj(
