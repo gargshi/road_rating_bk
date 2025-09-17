@@ -123,7 +123,10 @@
 
 		function renderSlideshow(pics) {
 			const container = document.getElementById("modalPics");
+			const videoContainer = document.getElementById("gridVideos");
+			videoContainer.innerHTML = ""; // reset
 			container.innerHTML = ""; // reset
+
 
 			// Create slides
 			/*pics.forEach((url, idx) => {
@@ -152,7 +155,7 @@
 					/*if (idx === 0 && element.tagName === "VIDEO") {
 						element.play().catch(err => console.warn("Autoplay blocked:", err));
 					}*/
-					document.getElementById("gridVideos").appendChild(element.cloneNode(true)); // clone to videos section
+					videoContainer.appendChild(element); // clone to videos section
 				} else {
 					element = document.createElement("img");
 					element.src = url;
