@@ -100,7 +100,7 @@
 			<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
 				<!-- Slides will be injected dynamically -->
 			</div>
-			<!-- <div id="modalVideos" class="flex justify-center mt-4"></div> -->
+			<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
 
 			<!-- Navigation buttons -->
 			<button id="prevBtn" 
@@ -147,12 +147,12 @@
 					element.controls = true;    // prevent autoplay issues
 					element.loop = true;       // optional
 					element.playsInline = true;
-					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
+					element.className = "absolute inset-0 w-full h-full";
 					//if (idx === 0) element.autoplay = true; // start first video immediately
 					/*if (idx === 0 && element.tagName === "VIDEO") {
 						element.play().catch(err => console.warn("Autoplay blocked:", err));
 					}*/
-					//document.getElementById("modalVideos").appendChild(element.cloneNode(true)); // clone to videos section
+					document.getElementById("gridVideos").appendChild(element.cloneNode(true)); // clone to videos section
 				} else {
 					element = document.createElement("img");
 					element.src = url;
