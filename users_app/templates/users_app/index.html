@@ -99,7 +99,10 @@
 			 <!-- Slideshow Container -->
 			<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
 				<!-- Slides will be injected dynamically -->
-			</div>		
+			</div>
+			<div id="modalVideos" class="flex justify-center mt-4">
+				<!-- Videos will be injected dynamically -->
+			</div>
 
 			<!-- Navigation buttons -->
 			<button id="prevBtn" 
@@ -151,16 +154,17 @@
 					/*if (idx === 0 && element.tagName === "VIDEO") {
 						element.play().catch(err => console.warn("Autoplay blocked:", err));
 					}*/
+					document.getElementById("modalVideos").appendChild(element.cloneNode(true)); // clone to videos section
 				} else {
 					element = document.createElement("img");
 					element.src = url;
 					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
+					element.style.opacity = idx === 0 ? "1" : "0";
+	
+					container.appendChild(element);
 				}
 
 				// common styling for visibility
-				element.style.opacity = idx === 0 ? "1" : "0";
-
-				container.appendChild(element);
 			});
 
 			slideIndex = 0;
