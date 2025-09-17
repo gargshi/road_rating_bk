@@ -417,72 +417,162 @@ def get_presigned_url(request, filename):
 
 
 
+# def handle_media_upload(message, chat_id, session, road_id):
+#     s3 = boto3.client("s3", region_name=settings.AWS_REGION)
+#     extension="jpg"
+#     try:
+#         file_id = None
+#         orig_filename = None
+#         content_type = None
+#         media_type = "doc"        
+
+#         if "photo" in message:
+#             file_id = message["photo"][-1]["file_id"]
+#             extension=message["photo"][-1]["file_name"].split('.')[-1] if "file_name" in message["photo"][-1] else "jpg"
+#             orig_filename = f"{file_id}.{extension}"
+#             content_type = "image/jpeg"
+#             media_type = "photo"
+#             extension="jpg"
+#         elif "video" in message:
+#             file_id = message["video"]["file_id"]
+#             extension=message["video"]["file_name"].split('.')[-1] if "file_name" in message["video"] else "mp4"
+#             orig_filename = f"{file_id}.{extension}"
+#             content_type = message["video"].get("mime_type", "video/mp4")
+#             media_type = "video"
+#             extension="mp4"
+#         elif "document" in message:
+#             file_id = message["document"]["file_id"]
+#             orig_filename = message["document"].get("file_name") or f"{file_id}"
+#             content_type = message["document"].get("mime_type") or mimetypes.guess_type(orig_filename)[0] or "application/octet-stream"
+#             media_type = "doc"
+#             extension = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
+
+#         # Get Telegram file URL
+#         logger.info(f"Handling media upload for file_id {file_id}, orig_filename {orig_filename}, content_type {content_type}, media_type {media_type}")
+#         getfile_res = requests.get(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getFile?file_id={file_id}")
+#         getfile_res.raise_for_status()
+#         file_path = getfile_res.json()["result"]["file_path"]
+#         tg_file_url = f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}"
+
+#         # Download from Telegram
+#         r = requests.get(tg_file_url, stream=True)
+#         r.raise_for_status()
+
+#         road = RoadRating.objects.get(id=road_id)
+#         road_media = RoadMedia.objects.create(fk_road=road)
+
+#         # Generate uuid + extension
+#         ext = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
+
+        
+#         # s3_key = f"user_uploads/{session.get('road_id','pending')}/{unique_id}{ext}"
+#         s3_key = f"road_media/{road_media.id}.{extension}"
+
+#         # Upload to S3
+#         s3.upload_fileobj(
+#             r.raw,
+#             settings.AWS_STORAGE_BUCKET_NAME,
+#             s3_key,
+#             ExtraArgs={"ContentType": content_type}
+#         )
+
+#         # Save media record
+#         road_media.file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
+#         road_media.media_type = media_type
+#         road_media.save()
+#         session['road_media_id']=road_media.id
+#         logger.info(f"Saved RoadMedia {road_media.id} for RoadRating {road_id}")
+#         return True
+#     except Exception as e:
+#         logger.exception("Media upload failed")
+#         return False
+
 def handle_media_upload(message, chat_id, session, road_id):
     s3 = boto3.client("s3", region_name=settings.AWS_REGION)
-    extension="jpg"
+
     try:
         file_id = None
         orig_filename = None
         content_type = None
-        media_type = "doc"        
+        media_type = "doc"
+        extension = None
 
         if "photo" in message:
+            # Photos come as an array of sizes -> take largest
             file_id = message["photo"][-1]["file_id"]
-            extension=message["photo"][-1]["file_name"].split('.')[-1] if "file_name" in message["photo"][-1] else "jpg"
-            orig_filename = f"{file_id}.{extension}"
+            orig_filename = f"{file_id}.jpg"
             content_type = "image/jpeg"
             media_type = "photo"
-            extension="jpg"
+            extension = ".jpg"
+
         elif "video" in message:
+            # Videos don’t have "file_name"
             file_id = message["video"]["file_id"]
-            extension=message["video"]["file_name"].split('.')[-1] if "file_name" in message["video"] else "mp4"
-            orig_filename = f"{file_id}.{extension}"
+            orig_filename = f"{file_id}.mp4"
             content_type = message["video"].get("mime_type", "video/mp4")
             media_type = "video"
-            extension="mp4"
+            extension = mimetypes.guess_extension(content_type) or ".mp4"
+
         elif "document" in message:
             file_id = message["document"]["file_id"]
             orig_filename = message["document"].get("file_name") or f"{file_id}"
-            content_type = message["document"].get("mime_type") or mimetypes.guess_type(orig_filename)[0] or "application/octet-stream"
+            content_type = (
+                message["document"].get("mime_type")
+                or mimetypes.guess_type(orig_filename)[0]
+                or "application/octet-stream"
+            )
             media_type = "doc"
             extension = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
 
-        # Get Telegram file URL
-        logger.info(f"Handling media upload for file_id {file_id}, orig_filename {orig_filename}, content_type {content_type}, media_type {media_type}")
-        getfile_res = requests.get(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getFile?file_id={file_id}")
-        getfile_res.raise_for_status()
-        file_path = getfile_res.json()["result"]["file_path"]
-        tg_file_url = f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}"
+        if not file_id:
+            raise ValueError("No supported media type found in message")
 
-        # Download from Telegram
-        r = requests.get(tg_file_url, stream=True)
-        r.raise_for_status()
-
-        road = RoadRating.objects.get(id=road_id)
-        road_media = RoadMedia.objects.create(fk_road=road)
-
-        # Generate uuid + extension
-        ext = os.path.splitext(orig_filename)[1] or mimetypes.guess_extension(content_type) or ""
-
-        
-        # s3_key = f"user_uploads/{session.get('road_id','pending')}/{unique_id}{ext}"
-        s3_key = f"road_media/{road_media.id}.{extension}"
-
-        # Upload to S3
-        s3.upload_fileobj(
-            r.raw,
-            settings.AWS_STORAGE_BUCKET_NAME,
-            s3_key,
-            ExtraArgs={"ContentType": content_type}
+        # --- Get Telegram file path ---
+        logger.info(
+            f"Handling media upload: file_id={file_id}, orig_filename={orig_filename}, "
+            f"content_type={content_type}, media_type={media_type}"
         )
 
-        # Save media record
+        getfile_res = requests.get(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getFile",
+            params={"file_id": file_id},
+            timeout=30
+        )
+        getfile_res.raise_for_status()
+        data = getfile_res.json()
+        logger.debug(f"Telegram getFile response: {data}")
+
+        file_path = data["result"]["file_path"]
+        tg_file_url = f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}"
+
+        # --- Download from Telegram ---
+        with requests.get(tg_file_url, stream=True, timeout=120) as r:
+            r.raise_for_status()
+
+            road = RoadRating.objects.get(id=road_id)
+            road_media = RoadMedia.objects.create(fk_road=road)
+
+            # Construct S3 key
+            s3_key = f"road_media/{road_media.id}{extension}"
+
+            # Upload to S3
+            s3.upload_fileobj(
+                r.raw,
+                settings.AWS_STORAGE_BUCKET_NAME,
+                s3_key,
+                ExtraArgs={"ContentType": content_type}
+            )
+
+        # --- Save media record ---
         road_media.file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
         road_media.media_type = media_type
         road_media.save()
-        session['road_media_id']=road_media.id
+
+        session["road_media_id"] = road_media.id
         logger.info(f"Saved RoadMedia {road_media.id} for RoadRating {road_id}")
+
         return True
+
     except Exception as e:
         logger.exception("Media upload failed")
         return False
