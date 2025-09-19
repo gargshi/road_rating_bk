@@ -56,7 +56,9 @@
 							text-red-500 dark:text-red-400
 						{% endif %}
 					">
-						{{ '-'*user_conversation.fk_road_id.rating }}⭐
+						{% for i in ""|center:user_conversation.fk_road_id.rating %}
+						- 
+						{% endfor %}⭐
 					</p>
 
 					<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
