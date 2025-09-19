@@ -31,51 +31,8 @@
 		<h3 class="text-gray-800 dark:text-gray-100 mb-4">Hi, there. You have rated {{ user_conv_count }} roads. Click on a card to view details</h3>
 		{% include 'includes/paginator.html' %}
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			{% for user_conversation in page_obj %}
-				<!-- <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
-				onclick="openModal(
-					'{{ user_conversation.fk_road_id.id }}',
-					'{{ user_conversation.fk_road_id.road_name }}',
-					'{{ user_conversation.fk_road_id.rating }}',
-					'{{ user_conversation.fk_road_id.comment|escapejs }}',
-					'{{ user_conversation.fk_road_id.created_at }}',
-					'{{ user_conversation.fk_road_id.gps_coordinates }}'
-				)">			
-
-					<h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
-						{{ user_conversation.fk_road_id.road_name }}
-					</h3>
-
-					<p class="
-						font-semibold mb-1
-						{% if user_conversation.fk_road_id.rating >= 4 %}
-							text-green-500 dark:text-green-300
-						{% elif user_conversation.fk_road_id.rating >= 2 %}
-							text-yellow-400 dark:text-yellow-300
-						{% else %}
-							text-red-500 dark:text-red-400
-						{% endif %}
-					">
-						{% for i in ""|center:user_conversation.fk_road_id.rating %}
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
-							<path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-						</svg>
-						{% endfor %}
-					</p>
-
-					<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
-						{% if user_conversation.fk_road_id.comment %}
-							{{ user_conversation.fk_road_id.comment }}
-						{% else %}
-							No comment provided.
-						{% endif %}						
-					</p>
-
-					<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-						Rated at: {{ user_conversation.fk_road_id.created_at }}
-					</p>
-				</div>		 -->
-				<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer flex"
+			{% for user_conversation in page_obj %}				
+				<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700 transition transform hover:-translate-y-1 cursor-pointer flex"
 					onclick="openModal(
 						'{{ user_conversation.fk_road_id.id }}',
 						'{{ user_conversation.fk_road_id.road_name }}',
