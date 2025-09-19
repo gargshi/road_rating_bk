@@ -97,10 +97,42 @@
 			<!-- Pics Grid -->
 			<!-- <div id="modalPics" class="grid grid-cols-2 gap-4"></div> -->
 			 <!-- Slideshow Container -->
-			<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
-				<!-- Slides will be injected dynamically -->
+			<!-- Tabbed Layout -->
+			<div class="flex flex-wrap mb-4">
+				<ul class="flex mb-0 list-none flex-wrap justify-center">
+					<li class="-mb-2 mr-2">
+						<a href="javascript:void(0)" class="text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100" onclick="showTab(event, 'images')">
+							Images
+						</a>
+					</li>
+					<li class="-mb-2">
+						<a href="javascript:void(0)" class="text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100" onclick="showTab(event, 'videos')">
+							Videos
+						</a>
+					</li>
+				</ul>
+				<div id="images" class="tab-content hidden">
+					<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
+						<!-- Slides will be injected dynamically -->
+					</div>
+				</div>
+				<div id="videos" class="tab-content hidden">
+					<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
+				</div>
 			</div>
-			<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
+			<script>
+				function showTab(event, tabName) {
+					event.preventDefault();
+					var tabContent = document.getElementsByClassName("tab-content");
+					for (var i = 0; i < tabContent.length; i++) {
+						tabContent[i].classList.add("hidden");
+					}
+					var selectedTab = document.getElementById(tabName);
+					selectedTab.classList.remove("hidden");
+				}
+			</script>
+			
+			
 
 			<!-- Navigation buttons -->
 			<button id="prevBtn" 
