@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'django.contrib.humanize',  # For human-friendly number formatting
 	'ratings',
 	'users_app',    # Add your app here
     'rest_framework',  # Django REST Framework for API support

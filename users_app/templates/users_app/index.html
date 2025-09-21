@@ -1,5 +1,5 @@
 {% extends 'users_app/base.html' %}
-
+{% load humanize %}
 
 
 {% block title %}User Dashboard{% endblock %}
@@ -70,14 +70,15 @@
 
 					<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
 						{% if user_conversation.fk_road_id.comment %}
-						{{ user_conversation.fk_road_id.comment }}
+							{{ user_conversation.fk_road_id.comment }}
 						{% else %}
-						No comment provided.
+							<em class="text-gray-400 italic">No comments provided.</em>
 						{% endif %}
 					</p>
 
 					<p class="text-sm text-gray-500 dark:text-gray-400">
-						Rated at: {{ user_conversation.fk_road_id.created_at }}
+						Rated at: {{ user_conversation.fk_road_id.created_at|localtime|date:"M d, Y H:i" }}, 
+						{{ user_conversation.fk_road_id.created_at|localtime|humanize.naturaltime }} 
 					</p>
 				</div>
 			</div>
