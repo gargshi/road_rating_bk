@@ -66,19 +66,19 @@
             {% if page_obj.number == num %}
               <a href="?page={{ num }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
                  aria-current="page"
-                 class="relative z-10 inline-flex items-center bg-indigo-600 dark:bg-indigo-500 w-9 h-9 text-sm font-semibold text-white">
+                 class="relative z-10 flex items-center justify-center rounded-full bg-indigo-600 dark:bg-indigo-500 w-9 h-9 text-sm font-semibold text-white">
                 {{ num }}
               </a>
             {% else %}
               <a href="?page={{ num }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
-                 class="relative inline-flex items-center w-9 h-9 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-white/5">
+                 class="relative flex items-center justify-center rounded-full w-9 h-9 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-white/5">
                 {{ num }}
               </a>
             {% endif %}
           {% elif num == 2 and page_obj.number > 4 %}
-            <span class="relative inline-flex items-center w-9 h-9 text-sm font-semibold text-gray-400">…</span>
+            <span class="relative flex items-center justify-center rounded-full w-9 h-9 text-sm font-semibold text-gray-400">…</span>
           {% elif num == page_obj.paginator.num_pages|add:"-1" and page_obj.number < page_obj.paginator.num_pages|add:"-3" %}
-            <span class="relative inline-flex items-center w-9 h-9 text-sm font-semibold text-gray-400">…</span>
+            <span class="relative flex items-center justify-center rounded-full w-9 h-9 text-sm font-semibold text-gray-400">…</span>
           {% endif %}
         {% endfor %}
 
