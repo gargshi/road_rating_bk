@@ -108,49 +108,61 @@
 			<!-- Pics Grid -->
 			<!-- <div id="modalPics" class="grid grid-cols-2 gap-4"></div> -->
 			 <!-- Slideshow Container -->
-			<!-- Tabbed Layout -->
-			<div class="flex flex-wrap mb-4">
-				<ul class="flex mb-0 list-none flex-wrap justify-center">
-					<li class="-mb-2 mr-2">
-						<a href="javascript:void(0)" class="text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100" onclick="showTab(event, 'images')">
-							Images
-						</a>
-					</li>
-					<li class="-mb-2">
-						<a href="javascript:void(0)" class="text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100" onclick="showTab(event, 'videos')">
-							Videos
-						</a>
-					</li>
-				</ul>
-				<div id="images" class="tab-content w-full overflow-hidden hidden">
-					<!-- Navigation buttons -->
-					<button id="prevBtn" 
-							class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
-						&#10094;
-					</button>
-					<button id="nextBtn" 
-							class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
-						&#10095;
-					</button>
-					<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
-						images
-					</div>
+			<!-- Accordion Layout -->
+			<div class="space-y-2">
+
+			<!-- Images Accordion -->
+			<div class="border rounded-lg overflow-hidden">
+				<button onclick="toggleAccordion('images')" 
+						class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
+				Images
+				<span class="accordion-icon">+</span>
+				</button>
+				<div id="images" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4 relative">
+				<!-- Navigation buttons -->
+				<button id="prevBtn" 
+						class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+					&#10094;
+				</button>
+				<button id="nextBtn" 
+						class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+					&#10095;
+				</button>
+				<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
+					images
 				</div>
-				<div id="videos" class="tab-content w-full overflow-hidden hidden">
-					<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
 				</div>
 			</div>
+
+			<!-- Videos Accordion -->
+			<div class="border rounded-lg overflow-hidden">
+				<button onclick="toggleAccordion('videos')" 
+						class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
+				Videos
+				<span class="accordion-icon">+</span>
+				</button>
+				<div id="videos" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4">
+				<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
+				</div>
+			</div>
+
+			</div>
+
 			<script>
-				function showTab(event, tabName) {
-					event.preventDefault();
-					var tabContent = document.getElementsByClassName("tab-content");
-					for (var i = 0; i < tabContent.length; i++) {
-						tabContent[i].classList.add("hidden");
-					}
-					var selectedTab = document.getElementById(tabName);
-					selectedTab.classList.remove("hidden");
+			function toggleAccordion(id) {
+				const content = document.getElementById(id);
+				const icon = content.previousElementSibling.querySelector(".accordion-icon");
+
+				if (content.classList.contains("hidden")) {
+				content.classList.remove("hidden");
+				icon.textContent = "−"; // change icon to minus
+				} else {
+				content.classList.add("hidden");
+				icon.textContent = "+"; // change back to plus
 				}
+			}
 			</script>
+
 			
 			
 
