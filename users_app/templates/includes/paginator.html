@@ -4,14 +4,14 @@
   <div class="flex flex-1 justify-between sm:hidden">
     {% if page_obj.has_previous %}
       <a href="?page={{ page_obj.previous_page_number }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
-         class="relative inline-flex items-center rounded-md border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10">
+         class="relative flex items-center justify-center rounded-full rounded-md border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 w-9 h-9 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10">
         Previous
       </a>
     {% endif %}
 
     {% if page_obj.has_next %}
       <a href="?page={{ page_obj.next_page_number }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
-         class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10">
+         class="relative ml-3 flex items-center justify-center rounded-full rounded-md border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 w-9 h-9 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10">
         Next
       </a>
     {% endif %}
