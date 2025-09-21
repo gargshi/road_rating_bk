@@ -85,7 +85,7 @@
         <!-- Next -->
         {% if page_obj.has_next %}
           <a href="?page={{ page_obj.next_page_number }}{% if request.session.num_per_page %}&num_per_page={{ request.session.num_per_page }}{% endif %}"
-             class="relative items-center justify-center rounded-full w-9 h-9 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-white/5">
+             class="relative flex items-center justify-center rounded-full w-9 h-9 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-white/5">
             <span class="sr-only">Next</span>
             <svg viewBox="0 0 20 20" fill="currentColor" class="size-5">
               <path d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"/>
