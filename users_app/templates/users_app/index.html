@@ -28,25 +28,25 @@
 	</div>
 	<div>
 		<h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">User Road Ratings</h1>
-		<h3 class="text-gray-800 dark:text-gray-100 mb-4">Hi, there. You have rated {{ user_conv_count }} roads. Click on a card to view details</h3>
+		<h3 class="text-gray-800 dark:text-gray-100 mb-4">Hi, there. You have rated {{ user_conv_count }} roads. Click
+			on a card to view details</h3>
 		{% include 'includes/paginator.html' %}
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			{% for user_conversation in page_obj %}				
-				<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700 transition transform hover:-translate-y-1 cursor-pointer flex"
-					onclick="openModal(
+			{% for user_conversation in page_obj %}
+			<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700 transition transform hover:-translate-y-1 cursor-pointer flex"
+				onclick="openModal(
 						'{{ user_conversation.fk_road_id.id }}',
 						'{{ user_conversation.fk_road_id.road_name }}',
 						'{{ user_conversation.fk_road_id.rating }}',
 						'{{ user_conversation.fk_road_id.comment|escapejs }}',
 						'{{ user_conversation.fk_road_id.created_at }}',
 						'{{ user_conversation.fk_road_id.gps_coordinates }}'
-					)">			
+					)">
 
-					<!-- Left Column: Stars -->
-					<div class="flex flex-col items-center justify-start mr-4">
-						{% for i in ""|center:user_conversation.fk_road_id.rating %}
-						<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" 
-							class="bi bi-star-fill 
+				<!-- Left Column: Stars -->
+				<div class="flex flex-col items-center justify-start mr-4">
+					{% for i in ""|center:user_conversation.fk_road_id.rating %}
+					<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-star-fill 
 							{% if user_conversation.fk_road_id.rating >= 4 %}
 								text-yellow-500 dark:text-yellow-400
 							{% elif user_conversation.fk_road_id.rating == 3 %}
@@ -55,43 +55,45 @@
 								text-yellow-300 dark:text-yellow-200
 							{% endif %}
 							text-yellow-400 dark:text-yellow-300 
-							mb-1" 
-							viewBox="0 0 16 16">
-							<path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-						</svg>
-						{% endfor %}
-					</div>
-
-					<!-- Right Column: Info -->
-					<div class="flex flex-col flex-1">
-						<h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-1">
-							{{ user_conversation.fk_road_id.road_name }}
-						</h3>
-
-						<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
-							{% if user_conversation.fk_road_id.comment %}
-								{{ user_conversation.fk_road_id.comment }}
-							{% else %}
-								No comment provided.
-							{% endif %}						
-						</p>
-
-						<p class="text-sm text-gray-500 dark:text-gray-400">
-							Rated at: {{ user_conversation.fk_road_id.created_at }}
-						</p>
-					</div>
+							mb-1" viewBox="0 0 16 16">
+						<path
+							d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+					</svg>
+					{% endfor %}
 				</div>
 
-				{% empty %}
-				<p class="col-span-full text-center text-gray-500 dark:text-gray-400">No road ratings available.</p>
+				<!-- Right Column: Info -->
+				<div class="flex flex-col flex-1">
+					<h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-1">
+						{{ user_conversation.fk_road_id.road_name }}
+					</h3>
+
+					<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
+						{% if user_conversation.fk_road_id.comment %}
+						{{ user_conversation.fk_road_id.comment }}
+						{% else %}
+						No comment provided.
+						{% endif %}
+					</p>
+
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						Rated at: {{ user_conversation.fk_road_id.created_at }}
+					</p>
+				</div>
+			</div>
+
+			{% empty %}
+			<p class="col-span-full text-center text-gray-500 dark:text-gray-400">No road ratings available.</p>
 			{% endfor %}
 		</div>
 		{% include 'includes/paginator.html' %}
 	</div>
 
 	<!-- Modal -->
-	<div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" onclick="closeModal(event)">
-		<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative max-h-[80vh] overflow-y-auto transition-colors duration-300" onclick="event.stopPropagation()">
+	<div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+		onclick="closeModal(event)">
+		<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative max-h-[80vh] overflow-y-auto transition-colors duration-300"
+			onclick="event.stopPropagation()">
 
 			<!-- Close Button -->
 			<button onclick="closeModal()"
@@ -102,78 +104,84 @@
 			<p id="modalRating" class="text-yellow-400 font-semibold mb-1"></p>
 			<p id="modalComment" class="text-gray-600 dark:text-gray-300 mb-2"></p>
 			<p id="modalDate" class="text-sm text-gray-500 dark:text-gray-400 mb-3"></p>
-			<a id="modalMap" href="#" target="_blank"
-				class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"></a>
+			<a id="modalMap" href="#" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"></a>
 
 			<!-- Pics Grid -->
 			<!-- <div id="modalPics" class="grid grid-cols-2 gap-4"></div> -->
-			 <!-- Slideshow Container -->
+			<!-- Slideshow Container -->
 			<!-- Accordion Layout -->
 			<div class="space-y-2">
-
-			<!-- Images Accordion -->
-			<div class="border rounded-lg overflow-hidden">
-				<button onclick="toggleAccordion('images')" 
+				<!-- Comment Accordion -->
+				<div class="border rounded-lg overflow-hidden">
+					<button onclick="toggleAccordion('commentSection')" class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
+						Comments
+						<span class="accordion-icon">+</span>
+					</button>
+					<div id="commentSection" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4">
+						<p id="modalCommentAccordion" class="text-gray-600 dark:text-gray-300">
+							{% if user_conversation.fk_road_id.comment %}
+								{{ user_conversation.fk_road_id.comment }}
+							{% else %}
+								<i>No comment provided.</i>
+							{% endif %}
+						</p>
+					</div>
+				</div>
+				<!-- Images Accordion -->
+				<div class="border rounded-lg overflow-hidden">
+					<button onclick="toggleAccordion('images')"
 						class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
-				Images
-				<span class="accordion-icon">+</span>
-				</button>
-				<div id="images" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4 relative">
-				<!-- Navigation buttons -->
-				<button id="prevBtn" 
-						class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
-					&#10094;
-				</button>
-				<button id="nextBtn" 
-						class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
-					&#10095;
-				</button>
-				<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
-					images
+						Images
+						<span class="accordion-icon">+</span>
+					</button>
+					<div id="images" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4 relative">
+						<!-- Navigation buttons -->
+						<button id="prevBtn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+							&#10094;
+						</button>
+						<button id="nextBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+							&#10095;
+						</button>
+						<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">							
+						</div>
+					</div>
 				</div>
-				</div>
-			</div>
 
-			<!-- Videos Accordion -->
-			<div class="border rounded-lg overflow-hidden">
-				<button onclick="toggleAccordion('videos')" 
+				<!-- Videos Accordion -->
+				<div class="border rounded-lg overflow-hidden">
+					<button onclick="toggleAccordion('videos')"
 						class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
-				Videos
-				<span class="accordion-icon">+</span>
-				</button>
-				<div id="videos" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4">
-				<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
+						Videos
+						<span class="accordion-icon">+</span>
+					</button>
+					<div id="videos" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4">
+						<div id="gridVideos" class="grid grid-cols-2 gap-2"></div>
+					</div>
 				</div>
-			</div>
 
 			</div>
 
 			<script>
-			function toggleAccordion(id) {
-				const content = document.getElementById(id);
-				const icon = content.previousElementSibling.querySelector(".accordion-icon");
+				function toggleAccordion(id) {
+					const content = document.getElementById(id);
+					const icon = content.previousElementSibling.querySelector(".accordion-icon");
 
-				if (content.classList.contains("hidden")) {
-				content.classList.remove("hidden");
-				icon.textContent = "−"; // change icon to minus
-				} else {
-				content.classList.add("hidden");
-				icon.textContent = "+"; // change back to plus
+					if (content.classList.contains("hidden")) {
+						content.classList.remove("hidden");
+						icon.textContent = "−"; // change icon to minus
+					} else {
+						content.classList.add("hidden");
+						icon.textContent = "+"; // change back to plus
+					}
 				}
-			}
 			</script>
-
-			
-			
-
-			
 		</div>
 	</div>
 
 	<!-- Scripts -->
 	<script>
 		// Modal functions
-		
+
 		let slideIndex = 0;
 		let slideInterval;
 
@@ -217,7 +225,7 @@
 					element.src = url;
 					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
 					element.style.opacity = idx === 0 ? "1" : "0";
-	
+
 					container.appendChild(element);
 				}
 
@@ -273,7 +281,7 @@
 				mapLink.textContent = "No GPS coordinates available";
 				mapLink.href = "#";
 			}
-			
+
 			fetch(`/get-presigned-urls/${roadId}/`)
 				.then(response => response.json())
 				.then(data => {
