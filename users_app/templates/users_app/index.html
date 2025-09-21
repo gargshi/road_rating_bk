@@ -101,9 +101,10 @@
 
 			<!-- Modal Content -->
 			<h2 id="modalTitle" class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2"></h2>
-			<p id="modalRating" class="text-yellow-400 font-semibold mb-1"></p>			
+			<p id="modalRating" class="text-yellow-400 font-semibold mb-1"></p>
 			<p id="modalDate" class="text-sm text-gray-500 dark:text-gray-400 mb-3"></p>
-			<a id="modalMap" href="#" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"></a>
+			<a id="modalMap" href="#" target="_blank"
+				class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"></a>
 
 			<!-- Pics Grid -->
 			<!-- <div id="modalPics" class="grid grid-cols-2 gap-4"></div> -->
@@ -112,13 +113,14 @@
 			<div class="space-y-2">
 				<!-- Comment Accordion -->
 				<div class="border rounded-lg overflow-hidden">
-					<button onclick="toggleAccordion('commentSection')" class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
+					<button onclick="toggleAccordion('commentSection')"
+						class="w-full flex justify-between items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
 						Comments
 						<span class="accordion-icon">+</span>
 					</button>
 					<div id="commentSection" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4">
 						<p id="modalCommentAccordion" class="text-gray-600 dark:text-gray-300">
-							<p id="modalComment" class="text-gray-600 dark:text-gray-300 mb-2"></p>
+						<p id="modalComment" class="text-gray-600 dark:text-gray-300 mb-2"></p>
 						</p>
 					</div>
 				</div>
@@ -131,13 +133,16 @@
 					</button>
 					<div id="images" class="accordion-content hidden bg-gray-50 dark:bg-gray-800 p-4 relative">
 						<!-- Navigation buttons -->
-						<button id="prevBtn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+						<button id="prevBtn"
+							class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
 							&#10094;
 						</button>
-						<button id="nextBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
+						<button id="nextBtn"
+							class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 z-10">
 							&#10095;
 						</button>
-						<div id="modalPics" class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">							
+						<div id="modalPics"
+							class="relative w-full h-96 overflow-hidden rounded-lg shadow-lg bg-gray-100 dark:bg-gray-700">
 						</div>
 					</div>
 				</div>
@@ -157,18 +162,7 @@
 			</div>
 
 			<script>
-				function toggleAccordion(id) {
-					const content = document.getElementById(id);
-					const icon = content.previousElementSibling.querySelector(".accordion-icon");
 
-					if (content.classList.contains("hidden")) {
-						content.classList.remove("hidden");
-						icon.textContent = "−"; // change icon to minus
-					} else {
-						content.classList.add("hidden");
-						icon.textContent = "+"; // change back to plus
-					}
-				}
 			</script>
 		</div>
 	</div>
@@ -184,23 +178,10 @@
 			const container = document.getElementById("modalPics");
 			const videoContainer = document.getElementById("gridVideos");
 			videoContainer.innerHTML = ""; // reset
-			container.innerHTML = ""; // reset
-
-
-			// Create slides
-			/*pics.forEach((url, idx) => {
-				const img = document.createElement("img");
-				img.src = url;
-				img.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
-				img.style.opacity = idx === 0 ? "1" : "0"; // first visible
-				container.appendChild(img);
-			});*/
-			// Create slides
+			container.innerHTML = ""; // reset			
 			pics.forEach((url, idx) => {
 				let element;
-
-				// check file type by extension
-				console.log(url);
+				// check file type by extension				
 				if (url.match(/\.(mp4|webm|ogg)$/i) || url.split('?')[0].match(/\.(mp4|webm|ogg)$/i)) {
 					console.log("video detected");
 					element = document.createElement("video");
@@ -210,21 +191,14 @@
 					element.loop = true;       // optional
 					element.playsInline = true;
 					element.className = "rounded-lg shadow m-2 w-32 h-32";
-					//if (idx === 0) element.autoplay = true; // start first video immediately
-					/*if (idx === 0 && element.tagName === "VIDEO") {
-						element.play().catch(err => console.warn("Autoplay blocked:", err));
-					}*/
 					videoContainer.appendChild(element); // clone to videos section
 				} else {
 					element = document.createElement("img");
 					element.src = url;
 					element.className = "absolute inset-0 w-full h-full object-cover transition-opacity duration-700";
 					element.style.opacity = idx === 0 ? "1" : "0";
-
 					container.appendChild(element);
 				}
-
-				// common styling for visibility
 			});
 
 			slideIndex = 0;
@@ -299,30 +273,6 @@
 					document.getElementById("nextBtn").style.display = "none";
 				});
 
-			/*let picsContainer = document.getElementById('modalPics');
-			picsContainer.innerHTML = "<p class='text-gray-500'>Loading images...</p>";
-
-			// 🔥 Fetch presigned URLs dynamically
-			fetch(`/get-presigned-urls/${roadId}/`)
-				.then(response => response.json())
-				.then(data => {
-					picsContainer.innerHTML = "";
-					if (data.urls && data.urls.length > 0) {
-						data.urls.forEach(url => {
-							let img = document.createElement("img");
-							img.src = url;
-							img.className = "rounded-lg shadow m-2 w-32 h-32 object-cover";
-							picsContainer.appendChild(img);
-						});
-					} else {
-						picsContainer.innerHTML = "<p class='text-gray-400 italic'>No images uploaded.</p>";
-					}
-				})
-				.catch(err => {
-					console.error("Error loading images:", err);
-					picsContainer.innerHTML = "<p class='text-red-500 italic'>Failed to load images.</p>";
-				});*/
-
 			document.getElementById('detailsModal').classList.remove("hidden");
 			document.getElementById('detailsModal').classList.add("flex");
 		}
@@ -355,6 +305,19 @@
 		document.addEventListener("keydown", function (e) {
 			if (e.key === "Escape") closeModal();
 		});
+
+		function toggleAccordion(id) {
+			const content = document.getElementById(id);
+			const icon = content.previousElementSibling.querySelector(".accordion-icon");
+
+			if (content.classList.contains("hidden")) {
+				content.classList.remove("hidden");
+				icon.textContent = "−"; // change icon to minus
+			} else {
+				content.classList.add("hidden");
+				icon.textContent = "+"; // change back to plus
+			}
+		}
 	</script>
 
 </div>
