@@ -77,7 +77,7 @@
 					</p>
 
 					<p class="text-sm text-gray-500 dark:text-gray-400">
-						Rated at: {{ user_conversation.fk_road_id.created_at|localtime|date:"M d, Y H:i" }}, 
+						Rated at: <span id="localizedDate">{{ user_conversation.fk_road_id.created_at|date:"c" }}</span>, 
 						{{ user_conversation.fk_road_id.created_at|localtime|naturaltime }} 
 					</p>
 				</div>
@@ -171,6 +171,36 @@
 	<!-- Scripts -->
 	<script>
 		// Modal functions
+		document.addEventListener("DOMContentLoaded", () => {
+			const el = document.getElementById("localizedDate");
+			const dt = new Date(el.dataset.dt); // parse ISO string
+			const now = new Date();
+			const diffMs = now - dt;
+			const diffSec = Math.round(diffMs / 1000);
+
+			let value, unit;
+
+			if (diffSec < 60) {
+				value = -diffSec;
+				unit = "second";
+			} else if (diffSec < 3600) {
+				value = -Math.round(diffSec / 60);
+				unit = "minute";
+			} else if (diffSec < 86400) {
+				value = -Math.round(diffSec / 3600);
+				unit = "hour";
+			} else if (diffSec < 604800) {
+				value = -Math.round(diffSec / 86400);
+				unit = "day";
+			} else {
+				// fallback: show full date for older posts
+				el.textContent = dt.toLocaleString();
+				return;
+			}
+
+			const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+			el.textContent = rtf.format(value, unit);
+		});
 
 		let slideIndex = 0;
 		let slideInterval;
@@ -183,7 +213,7 @@
 			pics.forEach((url, idx) => {
 				let element;
 				// check file type by extension				
-				if (url.match(/\.(mp4|webm|ogg)$/i) || url.split('?')[0].match(/\.(mp4|webm|ogg)$/i)) {
+				if (url.match(/\.(mp4|webm|ogg|mkv)$/i) || url.split('?')[0].match(/\.(mp4|webm|ogg|mkv)$/i)) {
 					console.log("video detected");
 					element = document.createElement("video");
 					element.src = url;
@@ -319,6 +349,8 @@
 				icon.textContent = "+"; // change back to plus
 			}
 		}
+
+
 	</script>
 
 </div>
