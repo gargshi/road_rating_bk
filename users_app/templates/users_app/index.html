@@ -70,9 +70,9 @@
 
 					<p class="text-gray-600 dark:text-gray-300 mb-2 truncate">
 						{% if user_conversation.fk_road_id.comment %}
-						{{ user_conversation.fk_road_id.comment }}
+							{{ user_conversation.fk_road_id.comment|slice:":50" }}{% if user_conversation.fk_road_id.comment|length > 100 %}…{% endif %}
 						{% else %}
-						<em class="text-gray-400 italic">No comments provided.</em>
+							<em class="text-gray-400 italic">No comments provided.</em>
 						{% endif %}
 					</p>
 
